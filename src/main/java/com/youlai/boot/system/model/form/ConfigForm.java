@@ -38,4 +38,7 @@ public class ConfigForm implements Serializable {
 
     @Schema(description = "描述、备注")
     private String remark;
+
+    @Schema(description = "表单ID")
+    private Integer formId;
 }

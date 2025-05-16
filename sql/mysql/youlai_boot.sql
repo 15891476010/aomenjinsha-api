@@ -2,18 +2,6 @@
 # YouLai_Boot 数据库(MySQL 5.7 ~ MySQL 8.x)
 # Copyright (c) 2021-present, youlai.tech
 
-
--- ----------------------------
--- 1. 创建数据库
--- ----------------------------
-CREATE DATABASE IF NOT EXISTS youlai_boot CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_unicode_ci;
-
-
--- ----------------------------
--- 2. 创建表 && 数据初始化
--- ----------------------------
-use youlai_boot;
-
 SET NAMES utf8mb4;  # 设置字符集
 SET FOREIGN_KEY_CHECKS = 0; # 关闭外键检查，加快导入速度
 

@@ -7,6 +7,8 @@ import com.youlai.boot.system.model.form.ConfigForm;
 import com.youlai.boot.system.model.query.ConfigPageQuery;
 import com.youlai.boot.system.model.vo.ConfigVO;
 
+import java.util.Map;
+
 /**
  * 系统配置Service接口
  *
@@ -63,6 +65,21 @@ public interface ConfigService extends IService<Config> {
      * @param key 配置键
      * @return 配置值
      */
-    Object getSystemConfig(String key);
+    String getSystemConfig(String key);
+
+    /**
+     * 根据模板id修改对应的配置
+     */
+    Map<String, String> getConfigByTemplateId(Integer templateId);
+
+    /**
+     * 根据模板id修改对应的配置
+     */
+    void updateConfigByTemplateId(Integer templateId, Map<String, String> configMap);
+
+    /**
+     * 根据key获取配置
+     */
+    String getConfigByKey(String key);
 
 }

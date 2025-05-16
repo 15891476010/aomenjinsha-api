@@ -53,4 +53,9 @@ public class Config extends BaseEntity {
      */
     private Integer isDeleted;
 
+    /**
+     * 表单id
+     */
+    private Integer formId;
+
 }

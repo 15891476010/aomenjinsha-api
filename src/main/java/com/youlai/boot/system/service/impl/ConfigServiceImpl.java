@@ -14,13 +14,16 @@ import com.youlai.boot.system.model.query.ConfigPageQuery;
 import com.youlai.boot.system.model.vo.ConfigVO;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.core.security.util.SecurityUtils;
+import com.youlai.boot.system.service.SysFormTempService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,6 +41,9 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
     private final ConfigConverter configConverter;
 
     private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private SysFormTempService sysFormTempService;
 
     /**
      * 系统启动完成后，加载系统配置到缓存
@@ -155,11 +161,47 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
      * @return 配置值
      */
     @Override
-    public Object getSystemConfig(String key) {
+    public String getSystemConfig(String key) {
         if (StringUtils.isNotBlank(key)) {
-            return redisTemplate.opsForHash().get(RedisConstants.System.CONFIG, key);
+            return (String) redisTemplate.opsForHash().get(RedisConstants.System.CONFIG, key);
         }
         return null;
+    }
+
+    @Override
+    public Map<String, String> getConfigByTemplateId(Integer templateId) {
+        LambdaQueryWrapper<Config> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Config::getFormId, templateId);
+        List<Config> configs = baseMapper.selectList(wrapper);
+        Map<String, String> map = new HashMap<>();
+        configs.forEach(config -> {
+            map.put(config.getConfigKey(), config.getConfigValue());
+        });
+        return map;
+    }
+
+    @Override
+    public void updateConfigByTemplateId(Integer templateId, Map<String, String> configMap) {
+        if (templateId != null && configMap != null) {
+            LambdaQueryWrapper<Config> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(Config::getFormId, templateId);
+            int delete = baseMapper.delete(wrapper);
+
+            // 循环configMap
+            for (Map.Entry<String, String> entry : configMap.entrySet()) {
+                Config config = new Config();
+                config.setConfigKey(entry.getKey());
+                config.setConfigValue(entry.getValue());
+                config.setConfigName(entry.getKey());
+                config.setFormId(templateId);
+                baseMapper.insert(config);
+            }
+        }
+    }
+
+    @Override
+    public String getConfigByKey(String key) {
+        return "";
     }
 
 }

@@ -28,6 +28,12 @@
 
         <knife4j.version>4.5.0</knife4j.version>
 
+        <!-- swagger2版本 -->
+        <swagger2.version>2.9.2</swagger2.version>
+        <!--swagger-bootstrap-ui-->
+        <swagger-bootstrap-ui>1.9.3</swagger-bootstrap-ui>
+
+
         <mapstruct.version>1.6.3</mapstruct.version>
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
 
@@ -58,6 +64,8 @@
         <!-- 微信 jdk -->
         <weixin-java.version>4.5.5.B</weixin-java.version>
         <caffeine.version>2.9.3</caffeine.version>
+
+        <validation.version>1.1.0.Final</validation.version>
     </properties>
 
     <dependencies>
@@ -80,6 +88,12 @@
             <artifactId>lombok-mapstruct-binding</artifactId>
             <version>${lombok-mapstruct-binding.version}</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.validation</groupId>
+            <artifactId>validation-api</artifactId>
+            <version>${validation.version}</version>
         </dependency>
 
         <dependency>
@@ -153,6 +167,24 @@
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
             <version>${knife4j.version}</version>
         </dependency>
+
+        <!--引入Swagger3-->
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>${swagger2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger-ui</artifactId>
+            <version>${swagger2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>swagger-bootstrap-ui</artifactId>
+            <version>${swagger-bootstrap-ui}</version>
+        </dependency>
+
 
         <!-- MapStruct 对象映射 -->
         <dependency>
@@ -248,6 +280,18 @@
             <version>${caffeine.version}</version>
         </dependency>
 
+        <!-- Apache Commons FileUpload -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.83</version>
+        </dependency>
     </dependencies>
 
     <build>

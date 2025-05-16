@@ -19,6 +19,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 
+import java.util.Map;
+
 /**
  * 系统配置前端控制层
  *
@@ -82,6 +84,22 @@ public class ConfigController {
     @Log( value = "删除系统配置",module = LogModuleEnum.SETTING)
     public Result<?> delete(@PathVariable Long id) {
         return Result.judge(configService.delete(id));
+    }
+
+    @Operation(summary = "根据模板id获取系统配置")
+    @GetMapping("/formId")
+    @Log( value = "根据模板id获取系统配置",module = LogModuleEnum.SETTING)
+    public Result<Map<String, String>> getConfigByTemplateId(@RequestParam(value = "formId") Integer formId) {
+        Map<String, String> configByTemplateId = configService.getConfigByTemplateId(formId);
+        return Result.success(configByTemplateId);
+    }
+
+    @Operation(summary = "根据模板id更新系统配置")
+    @PutMapping("/formId")
+    @Log( value = "根据模板id更新系统配置",module = LogModuleEnum.SETTING)
+    public Result<?> updateConfigByTemplateId(@RequestParam(value = "formId") Integer formId, @RequestBody Map<String, String> configMap) {
+        configService.updateConfigByTemplateId(formId, configMap);
+        return Result.success("更新成功");
     }
 
 }

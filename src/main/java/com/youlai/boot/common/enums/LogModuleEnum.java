@@ -22,6 +22,7 @@ public enum LogModuleEnum {
     MENU("菜单"),
     DICT("字典"),
     SETTING("系统配置"),
+    CATEGORY("配置分类"),
     OTHER("其他");
 
     @JsonValue
