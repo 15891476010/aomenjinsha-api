@@ -185,6 +185,4 @@ public interface UserService extends IService<User> {
      * @return {@link UserAuthCredentials}
      */
     UserAuthCredentials getAuthCredentialsByMobile(String mobile);
-
-
 }

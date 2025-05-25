@@ -88,6 +88,9 @@ security:
     - /api/v1/auth/logout         # 开放退出登录
     - /ws/**                      # WebSocket接口
     - /api/v1/admin/index           # 后台管理接口
+    - /api/v1/front/index           # 后台管理接口
+    - /api/v1/user/login
+    - /api/v1/user/register
   # 非安全端点路径，完全绕过 Spring Security 的安全控制
   unsecured-urls:
     - ${springdoc.swagger-ui.path}
@@ -160,6 +163,7 @@ springdoc:
         - com.youlai.boot.shared.auth.controller
         - com.youlai.boot.shared.file.controller
         - com.youlai.boot.shared.codegen.controller
+        - com.youlai.boot.index.controller
   default-flat-param-object: true
 
 # knife4j 接口文档配置

@@ -53,6 +53,7 @@ public class SysGroupDataServiceImpl extends ServiceImpl<SysGroupDataMapper, Sys
         if (queryParams.getStatus() != null) {
             wrapper.eq(SysGroupData::getStatus, queryParams.getStatus());
         }
+        wrapper.orderByAsc(SysGroupData::getSort);
         Page<SysGroupData> page = new Page<>(queryParams.getPageNum(), queryParams.getPageSize());
         Page<SysGroupData> sysGroupDataPage = baseMapper.selectPage(page, wrapper);
         return CommonPage.copyPageInfo(sysGroupDataPage, sysGroupDataConverter.toVoList(sysGroupDataPage.getRecords()));

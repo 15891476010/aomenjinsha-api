@@ -58,5 +58,13 @@ public class SysConfigConstant {
     // 时间类型结束时间
     public static String DATE_TIME_TYPE_END = "end";
 
+    // 游戏配置
+    public static final String CONFIG_KEY_MERCHANT_ID = "merchantId"; // 商户ID
+    public static final String CONFIG_KEY_MERCHANT_SECRET = "merchantSecret"; // 商户密钥
+    public static final String CONFIG_KEY_API_URL = "apiUrl";
 
+    // 商城基础配置
+    public static final String CONFIG_KEY_SHOP_TITLE = "title"; // 商城标题
+    public static final String CONFIG_KEY_SHOP_LOGO = "logo"; // 商城logo
+    public static final String CONFIG_KEY_SHOP_TITLES = "titles"; // 商城副标题
 }

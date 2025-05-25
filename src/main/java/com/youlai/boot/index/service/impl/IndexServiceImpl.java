@@ -33,9 +33,23 @@ public class IndexServiceImpl implements IndexService {
     public FrontIndexResultVo getIndexFrontData() {
         FrontIndexResultVo frontIndexResultVo = new FrontIndexResultVo();
         List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_FRONT_TABBAR);
+        List<HashMap<String, Object>> topNav = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_TOP_NAV);
+        List<HashMap<String, Object>> banner = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_INDEX_BANNER);
+        List<HashMap<String, Object>> noticeBar = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_INDEX_NOTICE_BAR);
+        List<HashMap<String, Object>> targetUrl = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_INDEX_TARGET_URL);
         String imagePrefix = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MINIO_UPLOAD_DOMAIN); // 添加图片请求前缀
+        String shopTitle = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_SHOP_TITLE);
+        String shopLogo = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_SHOP_LOGO);
+        String systemConfig = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_SHOP_TITLES);
+        frontIndexResultVo.setTitle(shopTitle);
+        frontIndexResultVo.setTitles(systemConfig);
+        frontIndexResultVo.setLogo(shopLogo);
         frontIndexResultVo.setTabbar(listMapByGid);
         frontIndexResultVo.setImagePrefix(imagePrefix);
+        frontIndexResultVo.setTopNav(topNav);
+        frontIndexResultVo.setBanner(banner);
+        frontIndexResultVo.setNoticeBar(noticeBar);
+        frontIndexResultVo.setTargetUrl(targetUrl);
         return frontIndexResultVo;
     }
 }
