@@ -62,6 +62,8 @@ public class SysConfigConstant {
     public static final String CONFIG_KEY_MERCHANT_ID = "merchantId"; // 商户ID
     public static final String CONFIG_KEY_MERCHANT_SECRET = "merchantSecret"; // 商户密钥
     public static final String CONFIG_KEY_API_URL = "apiUrl";
+    public static final String CONFIG_KEY_CURRENCY = "currency"; // 货币类型
+    public static final String CONFIG_KEY_LANGUAGE  = "language"; // 语言
 
     // 商城基础配置
     public static final String CONFIG_KEY_SHOP_TITLE = "title"; // 商城标题

@@ -1,19 +1,16 @@
 package com.youlai.boot.index.service.impl;
 
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.CommonPage;
-import com.youlai.boot.common.constant.RedisConstants;
-import com.youlai.boot.common.constant.SysConfigConstant;
 import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.common.exception.UsdtException;
 import com.youlai.boot.common.util.IPUtils;
 import com.youlai.boot.core.security.model.AuthenticationToken;
 import com.youlai.boot.core.security.token.TokenManager;
 import com.youlai.boot.core.security.util.SecurityUtils;
+import com.youlai.boot.game.service.GameService;
 import com.youlai.boot.index.model.form.EbUserLoginRequest;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
-import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
 import com.youlai.boot.system.service.UserRoleService;
@@ -21,11 +18,7 @@ import com.youlai.boot.utils.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,12 +34,7 @@ import com.youlai.boot.index.model.vo.EbUserVO;
 import com.youlai.boot.index.converter.EbUserConverter;
 import com.youlai.boot.core.security.model.EbUserDetails;
 
-import java.io.IOException;
-import java.net.http.HttpRequest;
-import java.sql.Array;
-import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
@@ -69,7 +57,7 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
     private SysGroupDataService sysGroupDataService;
 
     @Autowired
-    private ConfigService  configService;
+    private GameService gameApiService;
 
     private final TokenManager tokenManager;
 
@@ -153,35 +141,7 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
         if (save) {
             // 保存用户角色
              userRoleService.saveUserRoles(player_id, objects);
-             String BASE_URL = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_API_URL);
-             // 获取商户id
-            String merchant_id = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_ID);
-            String player_name = entity.getUsername();
-            String currency = "CNY";
-            String language = "zh";
-            Integer timestamp = (int) Instant.now().getEpochSecond();
-            String merchant_secret = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_SECRET);
-            String signStr = merchant_id + player_id + player_name + currency + language + timestamp + merchant_secret;
-            String sign = MD5Util.md5(signStr);
-            Map<String, Object> map = new HashMap<>();
-            map.put("merchant_id", merchant_id);
-            map.put("player_id", player_id);
-            map.put("player_name", player_name);
-            map.put("currency", currency);
-            map.put("language", language);
-            map.put("timestamp", timestamp);
-            map.put("sign", sign);
-            try {
-                Map<String, Object> post = HttpClientUtil.post(BASE_URL + "/player/create", map);
-                if (post != null) {
-                    String code = (String) post.get("success");
-                    if (!"1".equals(code)) {
-                        throw new RuntimeException("创建玩家失败");
-                    }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+             gameApiService.memberRegister(player_id, entity.getUsername());
         }
         return save;
     }
