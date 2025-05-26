@@ -16,6 +16,7 @@ import com.youlai.boot.common.result.ResultCode;
 import com.youlai.boot.config.property.SecurityProperties;
 import com.youlai.boot.core.security.model.SysUserDetails;
 import com.youlai.boot.core.security.model.AuthenticationToken;
+import com.youlai.boot.core.security.model.EbUserDetails;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -83,22 +84,34 @@ public class JwtTokenManager implements TokenManager {
      */
     @Override
     public Authentication parseToken(String token) {
-
         JWT jwt = JWTUtil.parseToken(token);
         JSONObject payloads = jwt.getPayloads();
-        SysUserDetails userDetails = new SysUserDetails();
-        userDetails.setUserId(payloads.getLong(JwtClaimConstants.USER_ID)); // 用户ID
-        userDetails.setDeptId(payloads.getLong(JwtClaimConstants.DEPT_ID)); // 部门ID
-        userDetails.setDataScope(payloads.getInt(JwtClaimConstants.DATA_SCOPE)); // 数据权限范围
-
-        userDetails.setUsername(payloads.getStr(JWTPayload.SUBJECT)); // 用户名
-        // 角色集合
-        Set<SimpleGrantedAuthority> authorities = payloads.getJSONArray(JwtClaimConstants.AUTHORITIES)
-                .stream()
-                .map(authority -> new SimpleGrantedAuthority(Convert.toStr(authority)))
-                .collect(Collectors.toSet());
-
-        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+        // 判断是否为前端用户token
+        if (payloads.containsKey("userType") && "front".equals(payloads.getStr("userType"))) {
+            EbUserDetails userDetails = new EbUserDetails();
+            userDetails.setUserId(payloads.getLong("userId"));
+            userDetails.setUsername(payloads.getStr(JWTPayload.SUBJECT));
+            userDetails.setNickName(payloads.getStr("nickName"));
+            userDetails.setAvatar(payloads.getStr("avatar"));
+            userDetails.setRealName(payloads.getStr("realName"));
+            userDetails.setPhone(payloads.getStr("phone"));
+            userDetails.setEnabled(payloads.getBool("enabled", true));
+            if (payloads.containsKey("balance")) {
+                userDetails.setBalance(payloads.getBigDecimal("balance"));
+            }
+            return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        } else {
+            SysUserDetails userDetails = new SysUserDetails();
+            userDetails.setUserId(payloads.getLong(JwtClaimConstants.USER_ID)); // 用户ID
+            userDetails.setDeptId(payloads.getLong(JwtClaimConstants.DEPT_ID)); // 部门ID
+            userDetails.setDataScope(payloads.getInt(JwtClaimConstants.DATA_SCOPE)); // 数据权限范围
+            userDetails.setUsername(payloads.getStr(JWTPayload.SUBJECT)); // 用户名
+            Set<SimpleGrantedAuthority> authorities = payloads.getJSONArray(JwtClaimConstants.AUTHORITIES)
+                    .stream()
+                    .map(authority -> new SimpleGrantedAuthority(Convert.toStr(authority)))
+                    .collect(Collectors.toSet());
+            return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+        }
     }
 
     /**
@@ -200,31 +213,35 @@ public class JwtTokenManager implements TokenManager {
      * @return JWT Token
      */
     private String generateToken(Authentication authentication, int ttl) {
-
-        SysUserDetails userDetails = (SysUserDetails) authentication.getPrincipal();
-
+        Object principal = authentication.getPrincipal();
         Map<String, Object> payload = new HashMap<>();
-        payload.put(JwtClaimConstants.USER_ID, userDetails.getUserId()); // 用户ID
-        payload.put(JwtClaimConstants.DEPT_ID, userDetails.getDeptId()); // 部门ID
-        payload.put(JwtClaimConstants.DATA_SCOPE, userDetails.getDataScope()); // 数据权限范围
-
-        // claims 中添加角色信息
-        Set<String> roles = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.toSet());
-        payload.put(JwtClaimConstants.AUTHORITIES, roles);
-
+        if (principal instanceof EbUserDetails ebUserDetails) {
+            payload.put("userType", "front");
+            payload.put("userId", ebUserDetails.getUserId());
+            payload.put("nickName", ebUserDetails.getNickName());
+            payload.put("avatar", ebUserDetails.getAvatar());
+            payload.put("realName", ebUserDetails.getRealName());
+            payload.put("phone", ebUserDetails.getPhone());
+            payload.put("enabled", ebUserDetails.isEnabled());
+            payload.put(JWTPayload.SUBJECT, ebUserDetails.getUsername());
+            payload.put("balance", ebUserDetails.getBalance());
+        } else if (principal instanceof SysUserDetails userDetails) {
+            payload.put(JwtClaimConstants.USER_ID, userDetails.getUserId());
+            payload.put(JwtClaimConstants.DEPT_ID, userDetails.getDeptId());
+            payload.put(JwtClaimConstants.DATA_SCOPE, userDetails.getDataScope());
+            Set<String> roles = authentication.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority)
+                    .collect(Collectors.toSet());
+            payload.put(JwtClaimConstants.AUTHORITIES, roles);
+            payload.put(JWTPayload.SUBJECT, authentication.getName());
+        }
         Date now = new Date();
         payload.put(JWTPayload.ISSUED_AT, now);
-
-        // 设置过期时间 -1 表示永不过期
         if (ttl != -1) {
             Date expiresAt = DateUtil.offsetSecond(now, ttl);
             payload.put(JWTPayload.EXPIRES_AT, expiresAt);
         }
-        payload.put(JWTPayload.SUBJECT, authentication.getName());
         payload.put(JWTPayload.JWT_ID, IdUtil.simpleUUID());
-
         return JWTUtil.createToken(payload, secretKey);
     }
 }

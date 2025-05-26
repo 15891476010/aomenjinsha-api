@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.youlai.boot.common.constant.SecurityConstants;
 import com.youlai.boot.common.constant.SystemConstants;
+import com.youlai.boot.core.security.model.EbUserDetails;
 import com.youlai.boot.core.security.model.SysUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
@@ -121,5 +122,29 @@ public class SecurityUtils {
         return request.getHeader(HttpHeaders.AUTHORIZATION);
     }
 
+    /**
+     * 获取当前登录的前端用户信息
+     *
+     * @return Optional<EbUserDetails>
+     */
+    public static Optional<EbUserDetails> getFrontUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof EbUserDetails) {
+                return Optional.of((EbUserDetails) principal);
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * 获取前端用户ID
+     *
+     * @return Long
+     */
+    public static Long getFrontUserId() {
+        return getFrontUser().map(EbUserDetails::getUserId).orElse(null);
+    }
 
 }

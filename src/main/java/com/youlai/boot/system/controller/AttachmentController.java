@@ -207,4 +207,11 @@ public class AttachmentController  {
         boolean result = attachmentService.deleteAttachments(ids);
         return Result.judge(result);
     }
+
+    @Operation(summary = "根据文件名模糊查询url")
+    @GetMapping("/{name}")
+    public Result<String> getAttachment(@PathVariable String name) {
+        String fileUrlByFileName = attachmentService.getFileUrlByFileName(name);
+        return Result.success(fileUrlByFileName);
+    }
 }

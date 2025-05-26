@@ -1,8 +1,10 @@
 package com.youlai.boot.index.service.impl;
 
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.CommonPage;
 import com.youlai.boot.common.constant.RedisConstants;
+import com.youlai.boot.common.constant.SysConfigConstant;
 import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.common.exception.UsdtException;
 import com.youlai.boot.common.util.IPUtils;
@@ -12,10 +14,10 @@ import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.index.model.form.EbUserLoginRequest;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.system.model.entity.User;
+import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
 import com.youlai.boot.system.service.UserRoleService;
-import com.youlai.boot.utils.CaptchaUtil;
-import com.youlai.boot.utils.MrZhangUtil;
+import com.youlai.boot.utils.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +39,13 @@ import com.youlai.boot.index.model.form.EbUserForm;
 import com.youlai.boot.index.model.query.EbUserQuery;
 import com.youlai.boot.index.model.vo.EbUserVO;
 import com.youlai.boot.index.converter.EbUserConverter;
+import com.youlai.boot.core.security.model.EbUserDetails;
 
+import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.sql.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.time.Instant;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.lang.Assert;
@@ -66,7 +68,8 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
     @Autowired
     private SysGroupDataService sysGroupDataService;
 
-    private final AuthenticationManager authenticationManager;
+    @Autowired
+    private ConfigService  configService;
 
     private final TokenManager tokenManager;
 
@@ -146,9 +149,39 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
         boolean save = this.save(entity);
         List<Long> objects = new ArrayList<>();
         objects.add(3L);
+        Long player_id = entity.getId();
         if (save) {
             // 保存用户角色
-             userRoleService.saveUserRoles(entity.getId(), objects);
+             userRoleService.saveUserRoles(player_id, objects);
+             String BASE_URL = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_API_URL);
+             // 获取商户id
+            String merchant_id = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_ID);
+            String player_name = entity.getUsername();
+            String currency = "CNY";
+            String language = "zh";
+            Integer timestamp = (int) Instant.now().getEpochSecond();
+            String merchant_secret = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_SECRET);
+            String signStr = merchant_id + player_id + player_name + currency + language + timestamp + merchant_secret;
+            String sign = MD5Util.md5(signStr);
+            Map<String, Object> map = new HashMap<>();
+            map.put("merchant_id", merchant_id);
+            map.put("player_id", player_id);
+            map.put("player_name", player_name);
+            map.put("currency", currency);
+            map.put("language", language);
+            map.put("timestamp", timestamp);
+            map.put("sign", sign);
+            try {
+                Map<String, Object> post = HttpClientUtil.post(BASE_URL + "/player/create", map);
+                if (post != null) {
+                    String code = (String) post.get("success");
+                    if (!"1".equals(code)) {
+                        throw new RuntimeException("创建玩家失败");
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return save;
     }
@@ -190,25 +223,37 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
     @Override
     public AuthenticationToken login(HttpServletRequest request, EbUserLoginRequest loginRequest) {
         Boolean b = captchaUtil.checkCaptcha(loginRequest.getCaptchaCode(), loginRequest.getCaptchaKey());
-        // 先验证账号密码是否正确
         LambdaQueryWrapper<EbUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EbUser::getUsername, loginRequest.getUsername());
         EbUser one = this.getOne(wrapper);
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername().trim(), loginRequest.getPassword());
-
-        // 2. 执行认证（认证中）
-        Authentication authenticate = authenticationManager.authenticate(authenticationToken);
-
-        // 3. 认证成功后生成 JWT 令牌，并存入 Security 上下文，供登录日志 AOP 使用（已认证）
-        AuthenticationToken authenticationTokenResponse =
-                tokenManager.generateToken(authenticate);
-
+        if (one == null) {
+            throw new UsdtException("用户不存在");
+        }
+        if (!passwordEncoder.matches(loginRequest.getPassword(), one.getPassword())) {
+            throw new UsdtException("密码错误");
+        }
         if (!one.getRealName().equals(loginRequest.getRealName())) {
             throw new UsdtException("真实姓名有误");
         }
-
-        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        EbUserDetails ebUserDetails = new EbUserDetails(
+                one.getId(),
+                one.getUsername(),
+                one.getPassword(),
+                one.getNickName(),
+                one.getAvatar(),
+                one.getRealName(),
+                one.getPhone(),
+                one.getStatus(),
+                one.getBalance()
+        );
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(ebUserDetails, null, ebUserDetails.getAuthorities());
+        // 2. 执行认证（认证中）
+        // Authentication authenticate = authenticationManager.authenticate(authenticationToken);
+        // 3. 认证成功后生成 JWT 令牌，并存入 Security 上下文，供登录日志 AOP 使用（已认证）
+        AuthenticationToken authenticationTokenResponse =
+                tokenManager.generateToken(authenticationToken);
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         one.setIp(IPUtils.getIpAddr(request));
         one.setCounty(MrZhangUtil.getLocationByIp(one.getIp()));
         baseMapper.updateById(one);
@@ -217,7 +262,7 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
 
     @Override
     public EbUserFrontVO getCurrentUserInfo() {
-        Long frontUserId = SecurityUtils.getUserId();
+        Long frontUserId = SecurityUtils.getFrontUserId();
         EbUser byId = this.getById(frontUserId);
         return ebUserConverter.toFrontVO(byId);
     }

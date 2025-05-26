@@ -57,4 +57,9 @@ public interface AttachmentService extends IService<Attachment> {
      */
     boolean deleteAttachments(String ids);
 
+    /**
+     * 根据为文件名查询文件url
+     */
+    String getFileUrlByFileName(String fileName);
+
 }

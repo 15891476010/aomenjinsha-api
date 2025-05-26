@@ -44,4 +44,5 @@ public class GameCategoryDataVO implements Serializable {
     private Boolean isDeleted;
     @Schema(description = "描述标签")
     private String tag;
+    private Boolean isHot;
 }

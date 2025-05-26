@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
@@ -36,4 +37,6 @@ public class EbUserFrontVO implements Serializable {
     private String email;
     @Schema(description = "国家")
     private String county;
+    @Schema(description = "余额")
+    private BigDecimal balance;
 }

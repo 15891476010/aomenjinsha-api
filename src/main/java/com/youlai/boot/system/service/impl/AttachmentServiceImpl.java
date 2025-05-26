@@ -121,4 +121,14 @@ public class AttachmentServiceImpl extends ServiceImpl<AttachmentMapper, Attachm
         return this.removeByIds(idList);
     }
 
+    @Override
+    public String getFileUrlByFileName(String fileName) {
+        LambdaQueryWrapper<Attachment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.like(Attachment::getName, fileName);
+        if (ObjectUtil.isNotEmpty(baseMapper.selectList(wrapper))) {
+            return baseMapper.selectList(wrapper).get(0).getSattDir();
+        }
+        return "";
+    }
+
 }

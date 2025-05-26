@@ -50,4 +50,6 @@ public class GameCategoryDataForm implements Serializable {
 
     @Schema(description = "描述标签")
     private String tag;
+
+    private Boolean isHot;
 }

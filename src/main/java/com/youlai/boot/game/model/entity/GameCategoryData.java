@@ -51,4 +51,8 @@ public class GameCategoryData extends BaseEntity {
      * 描述标签
      */
     private String tag;
+    /**
+     * 是否热门
+     */
+    private Boolean isHot;
 }

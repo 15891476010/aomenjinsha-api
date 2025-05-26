@@ -24,4 +24,5 @@ public class GameCategoryDataQuery extends BasePageQuery {
     private Boolean status;
     @Schema(description = "描述标签")
     private String tag;
+    private Boolean isHot;
 }

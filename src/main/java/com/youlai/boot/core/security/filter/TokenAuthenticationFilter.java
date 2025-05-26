@@ -36,6 +36,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     /**
      * 校验 Token ，包括验签和是否过期
      * 如果 Token 有效，将 Token 解析为 Authentication 对象，并设置到 Spring Security 上下文中
+     * 支持SysUserDetails和EbUserDetails
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

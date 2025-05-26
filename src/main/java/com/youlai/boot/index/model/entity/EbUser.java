@@ -5,6 +5,8 @@ import lombok.Setter;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.youlai.boot.common.base.BaseEntity;
 
+import java.math.BigDecimal;
+
 /**
  * 前端用户实体对象
  *
@@ -66,4 +68,8 @@ public class EbUser extends BaseEntity {
      * 是否删除
      */
     private Boolean isDeleted;
+    /**
+     * 余额
+     */
+    private BigDecimal balance;
 }
