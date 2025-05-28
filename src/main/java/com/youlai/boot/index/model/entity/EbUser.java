@@ -72,4 +72,8 @@ public class EbUser extends BaseEntity {
      * 余额
      */
     private BigDecimal balance;
+    /**
+     * vip等级
+     */
+    private Integer vipLevel;
 }

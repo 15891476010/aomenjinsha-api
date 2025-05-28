@@ -65,4 +65,10 @@ public class EbUserForm implements Serializable {
 
     @Schema(description = "余额")
     private BigDecimal balance;
+
+    /**
+     * vip等级
+     */
+    @Schema(description = "vip等级")
+    private Integer vipLevel;
 }

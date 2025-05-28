@@ -2,6 +2,7 @@ package com.youlai.boot.common.advice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youlai.boot.common.annotation.AesEncrypt;
+import com.youlai.boot.config.property.EncryptProperties;
 import com.youlai.boot.utils.HttpAESUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -16,6 +17,9 @@ public class AesResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     @Autowired
     private ObjectMapper objectMapper; // 注入全局配置的ObjectMapper
 
+    @Autowired
+    private EncryptProperties encryptProperties;
+
     @Override
     public boolean supports(MethodParameter returnType, Class<? extends HttpMessageConverter<?>> converterType) {
         return returnType.hasMethodAnnotation(AesEncrypt.class) || returnType.getContainingClass().isAnnotationPresent(AesEncrypt.class);
@@ -27,6 +31,9 @@ public class AesResponseBodyAdvice implements ResponseBodyAdvice<Object> {
                                   org.springframework.http.server.ServerHttpRequest request,
                                   org.springframework.http.server.ServerHttpResponse response) {
         try {
+            if (!encryptProperties.getEnabled()) {
+                return body;
+            }
             String json = objectMapper.writeValueAsString(body); // 用全局的
             System.out.println("加密前内容：" + json);
             System.out.println("加密前原始对象：" + body);

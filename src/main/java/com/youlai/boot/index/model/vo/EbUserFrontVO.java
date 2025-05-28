@@ -39,4 +39,6 @@ public class EbUserFrontVO implements Serializable {
     private String county;
     @Schema(description = "余额")
     private BigDecimal balance;
+    @Schema(description = "vip等级")
+    private Integer vipLevel;
 }

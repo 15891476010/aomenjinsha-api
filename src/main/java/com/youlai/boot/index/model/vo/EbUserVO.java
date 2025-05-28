@@ -42,6 +42,8 @@ public class EbUserVO implements Serializable {
     private String ip;
     @Schema(description = "余额")
     private BigDecimal balance;
+    @Schema(description = "vip等级")
+    private Integer vipLevel;
     @Schema(description = "账号状态")
     private Boolean status;
     @Schema(description = "创建时间")
