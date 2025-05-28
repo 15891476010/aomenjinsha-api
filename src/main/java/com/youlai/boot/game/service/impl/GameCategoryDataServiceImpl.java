@@ -53,6 +53,10 @@ public class GameCategoryDataServiceImpl extends ServiceImpl<GameCategoryDataMap
         if (ObjectUtil.isNotEmpty(queryParams.getStatus())) {
             wrapper.eq(GameCategoryData::getStatus, queryParams.getStatus());
         }
+
+        if (ObjectUtil.isNotEmpty(queryParams.getProvider())) {
+            wrapper.eq(GameCategoryData::getProvider, queryParams.getProvider());
+        }
         Page<GameCategoryData> pageVO = baseMapper.selectPage(page, wrapper);
         List<GameCategoryDataVO> voList = gameCategoryDataConverter.toVoList(pageVO.getRecords());
         return CommonPage.copyPageInfo(pageVO, voList);

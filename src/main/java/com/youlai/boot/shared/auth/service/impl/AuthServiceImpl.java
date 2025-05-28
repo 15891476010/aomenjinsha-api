@@ -3,13 +3,16 @@ package com.youlai.boot.shared.auth.service.impl;
 import cn.hutool.captcha.AbstractCaptcha;
 import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.generator.CodeGenerator;
+import cn.hutool.captcha.generator.MathGenerator;
+import cn.hutool.captcha.generator.RandomGenerator;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import com.youlai.boot.common.constant.RedisConstants;
 import com.youlai.boot.common.constant.SecurityConstants;
+import com.youlai.boot.common.constant.SysConfigConstant;
 import com.youlai.boot.common.exception.BusinessException;
 import com.youlai.boot.common.result.ResultCode;
-import com.youlai.boot.config.property.CaptchaProperties;
+import com.youlai.boot.config.CaptchaConfig;
 import com.youlai.boot.core.security.extension.sms.SmsAuthenticationToken;
 import com.youlai.boot.core.security.extension.wechat.WechatAuthenticationToken;
 import com.youlai.boot.core.security.util.SecurityUtils;
@@ -20,8 +23,10 @@ import com.youlai.boot.shared.auth.service.AuthService;
 import com.youlai.boot.core.security.token.TokenManager;
 import com.youlai.boot.shared.sms.enums.SmsTypeEnum;
 import com.youlai.boot.shared.sms.service.SmsService;
+import com.youlai.boot.system.service.ConfigService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,12 +53,14 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenManager tokenManager;
 
-    private final Font captchaFont;
-    private final CaptchaProperties captchaProperties;
-    private final CodeGenerator codeGenerator;
-
     private final SmsService smsService;
     private final RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private ConfigService configService;
+
+    @Autowired
+    private CaptchaConfig captchaConfig;
 
     /**
      * 用户名密码登录
@@ -169,11 +176,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public CaptchaInfo getCaptcha() {
 
-        String captchaType = captchaProperties.getType();
-        int width = captchaProperties.getWidth();
-        int height = captchaProperties.getHeight();
-        int interfereCount = captchaProperties.getInterfereCount();
-        int codeLength = captchaProperties.getCode().getLength();
+        String captchaType = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_TYPE);
+        int width = Integer.parseInt(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_WIDTH));
+        int height = Integer.parseInt(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_HEIGHT));
+        int interfereCount = Integer.parseInt(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_INTERFERE_COUNT));
+        int codeLength = Integer.parseInt(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_CODE_LENGTH));
 
         AbstractCaptcha captcha;
         if (CaptchaTypeEnum.CIRCLE.name().equalsIgnoreCase(captchaType)) {
@@ -187,9 +194,9 @@ public class AuthServiceImpl implements AuthService {
         } else {
             throw new IllegalArgumentException("Invalid captcha type: " + captchaType);
         }
-        captcha.setGenerator(codeGenerator);
-        captcha.setTextAlpha(captchaProperties.getTextAlpha());
-        captcha.setFont(captchaFont);
+        captcha.setGenerator(captchaConfig.codeGenerator());
+        captcha.setFont(captchaConfig.captchaFont());
+        captcha.setTextAlpha(Float.parseFloat(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_TEXT_ALPHA)));
 
         String captchaCode = captcha.getCode();
         String imageBase64Data = captcha.getImageBase64Data();
@@ -199,7 +206,7 @@ public class AuthServiceImpl implements AuthService {
         redisTemplate.opsForValue().set(
                 StrUtil.format(RedisConstants.Captcha.IMAGE_CODE, captchaKey),
                 captchaCode,
-                captchaProperties.getExpireSeconds(),
+                Long.parseLong(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_EXPIRE_SECONDS)),
                 TimeUnit.SECONDS
         );
 

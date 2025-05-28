@@ -45,4 +45,8 @@ public class GameCategoryDataVO implements Serializable {
     @Schema(description = "描述标签")
     private String tag;
     private Boolean isHot;
+    /**
+     * 供应商id
+     */
+    private String provider;
 }

@@ -3,7 +3,8 @@ package com.youlai.boot.config;
 import cn.hutool.captcha.generator.CodeGenerator;
 import cn.hutool.captcha.generator.MathGenerator;
 import cn.hutool.captcha.generator.RandomGenerator;
-import com.youlai.boot.config.property.CaptchaProperties;
+import com.youlai.boot.common.constant.SysConfigConstant;
+import com.youlai.boot.system.service.ConfigService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +21,7 @@ import java.awt.*;
 public class CaptchaConfig {
 
     @Autowired
-    private CaptchaProperties captchaProperties;
+    private ConfigService configService;
 
     /**
      * 验证码文字生成器
@@ -29,8 +30,8 @@ public class CaptchaConfig {
      */
     @Bean
     public CodeGenerator codeGenerator() {
-        String codeType = captchaProperties.getCode().getType();
-        int codeLength = captchaProperties.getCode().getLength();
+        String codeType = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_CODE_TYPE);
+        int codeLength = Integer.parseInt(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_CODE_LENGTH));
         if ("math".equalsIgnoreCase(codeType)) {
             return new MathGenerator(codeLength);
         } else if ("random".equalsIgnoreCase(codeType)) {
@@ -45,9 +46,9 @@ public class CaptchaConfig {
      */
     @Bean
     public Font captchaFont() {
-        String fontName = captchaProperties.getFont().getName();
-        int fontSize = captchaProperties.getFont().getSize();
-        int fontWight = captchaProperties.getFont().getWeight();
+        String fontName = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_FONT_NAME);
+        int fontSize = Integer.parseInt(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_FONT_SIZE));
+        int fontWight = Integer.parseInt(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CAPTCHA_FONT_WEIGHT));
         return new Font(fontName, fontWight, fontSize);
     }
 

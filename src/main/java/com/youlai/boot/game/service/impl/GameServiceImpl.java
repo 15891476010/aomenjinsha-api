@@ -1,11 +1,13 @@
 package com.youlai.boot.game.service.impl;
 
 import com.youlai.boot.common.constant.SysConfigConstant;
+import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameService;
 import com.youlai.boot.system.service.ConfigService;
+import com.youlai.boot.system.service.SysGroupDataService;
 import com.youlai.boot.utils.HttpClientUtil;
 import com.youlai.boot.utils.MD5Util;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -24,6 +28,9 @@ public class GameServiceImpl implements GameService {
 
     @Autowired
     private GameCategoryDataService gameCategoryDataService;
+
+    @Autowired
+    private SysGroupDataService sysGroupDataService;
 
     @Override
     public Map<String, Object> getGameUrl(Long id) {
@@ -106,5 +113,18 @@ public class GameServiceImpl implements GameService {
             e.printStackTrace();
         }
         return Map.of();
+    }
+
+    @Override
+    public List<Map<String, String>> getGameProviderList() {
+        List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_ADMIN_PROVIDER_LIST);
+        List<Map<String, String>> objects = new ArrayList<>();
+        listMapByGid.forEach(map -> {
+            Map<String, String> stringStringMap = new HashMap<>();
+            stringStringMap.put("label", map.get("provider").toString());
+            stringStringMap.put("value", map.get("MerchantID").toString());
+            objects.add(stringStringMap);
+        });
+        return objects;
     }
 }

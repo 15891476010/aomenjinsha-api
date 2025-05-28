@@ -69,4 +69,17 @@ public class SysConfigConstant {
     public static final String CONFIG_KEY_SHOP_TITLE = "title"; // 商城标题
     public static final String CONFIG_KEY_SHOP_LOGO = "logo"; // 商城logo
     public static final String CONFIG_KEY_SHOP_TITLES = "titles"; // 商城副标题
+
+    // 验证码配置
+    public static final String CONFIG_KEY_CAPTCHA_TYPE = "captchaType"; // 验证码类型
+    public static final String CONFIG_KEY_CAPTCHA_WIDTH = "width"; // 验证码宽度
+    public static final String CONFIG_KEY_CAPTCHA_HEIGHT = "height"; // 验证码高度
+    public static final String CONFIG_KEY_CAPTCHA_INTERFERE_COUNT = "interfaceCount"; // 验证码干扰线数量
+    public static final String CONFIG_KEY_CAPTCHA_TEXT_ALPHA = "textAlpha"; // 验证码透明度
+    public static final String CONFIG_KEY_CAPTCHA_EXPIRE_SECONDS = "expireSeconds"; // 验证码过期时间
+    public static final String CONFIG_KEY_CAPTCHA_CODE_TYPE = "codeType"; // 验证码类型
+    public static final String CONFIG_KEY_CAPTCHA_CODE_LENGTH = "codeLength"; // 验证码长度
+    public static final String CONFIG_KEY_CAPTCHA_FONT_NAME = "fontName"; // 验证码字体
+    public static final String CONFIG_KEY_CAPTCHA_FONT_WEIGHT = "fontWeight"; // 验证码字体
+    public static final String CONFIG_KEY_CAPTCHA_FONT_SIZE = "fontSize"; // 验证码字体大小
 }

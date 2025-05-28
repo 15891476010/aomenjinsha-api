@@ -7,4 +7,5 @@ public class SysGroupConstants {
     public static final Integer GROUP_ID_INDEX_NOTICE_BAR = 5; // 首页滚动公告
     public static final Integer GROUP_ID_INDEX_TARGET_URL = 6; // 首页跳转链接
     public static final Integer GROUP_ID_INDEX_AVATAR = 8;// 用户注册随机头像列表
+    public static final Integer GROUP_ID_ADMIN_PROVIDER_LIST = 9; // 游戏提供商列表
 }

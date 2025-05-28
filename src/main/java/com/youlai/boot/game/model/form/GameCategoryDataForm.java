@@ -52,4 +52,9 @@ public class GameCategoryDataForm implements Serializable {
     private String tag;
 
     private Boolean isHot;
+
+    /**
+     * 供应商id
+     */
+    private String provider;
 }

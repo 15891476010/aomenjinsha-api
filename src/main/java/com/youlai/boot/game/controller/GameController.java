@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,5 +33,11 @@ public class GameController {
     public Result<Map<String, Object>> getUrl(@RequestParam("id") Long id) {
         Map<String, Object> gameUrl = gameService.getGameUrl(id);
         return Result.success(gameUrl);
+    }
+
+    @Operation(summary = "获取游戏供应商列表")
+    @GetMapping("/getProviderList")
+    public Result<List<Map<String, String>>> getProviderList() {
+        return Result.success(gameService.getGameProviderList());
     }
 }
