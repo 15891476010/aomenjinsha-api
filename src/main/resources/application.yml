@@ -1,6 +1,6 @@
 spring:
   application:
-    name: youlai-boot
+    name: bc-system
   profiles:
     active: dev
   config:

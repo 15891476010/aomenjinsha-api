@@ -23,6 +23,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import com.youlai.boot.common.annotation.AesEncrypt;
 
 import java.net.http.HttpRequest;
 
@@ -89,6 +90,7 @@ public class EbUserController  {
 
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
+    @AesEncrypt
     @Log(value = "获取当前登录用户信息", module = LogModuleEnum.USER)
     public Result<EbUserFrontVO> getCurrentUser() {
         EbUserFrontVO currentUserInfo = ebUserService.getCurrentUserInfo();
@@ -97,13 +99,13 @@ public class EbUserController  {
 
 
     @Operation(summary = "获取用户余额")
-    @GetMapping("/balance")
+    @PostMapping("/balance")
     public Result<EbUserBalanceVO> balance() {
         return Result.success(ebUserService.getUserBalance());
     }
 
     @Operation(summary = "免转钱包下注")
-    @GetMapping("/transfer")
+    @PostMapping("/transfer")
     public Result<Boolean> transfer() {
         return Result.judge(ebUserService.transfer());
     }

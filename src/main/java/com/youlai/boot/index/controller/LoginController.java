@@ -1,5 +1,6 @@
 package com.youlai.boot.index.controller;
 
+import com.youlai.boot.common.annotation.AesEncrypt;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.core.security.model.AuthenticationToken;
 import com.youlai.boot.index.model.form.EbUserForm;
@@ -28,6 +29,7 @@ public class LoginController {
 
     @Operation(summary = "登录")
     @PostMapping("/login")
+    @AesEncrypt
     public Result<AuthenticationToken> login(HttpServletRequest request, @RequestBody EbUserLoginRequest loginRequest) {
         AuthenticationToken login = ebUserService.login(request, loginRequest);
         return Result.success(login);
@@ -35,6 +37,7 @@ public class LoginController {
 
     @Operation(summary = "注册")
     @PostMapping("/register")
+    @AesEncrypt
     public Result<Void> register(HttpServletRequest request, @RequestBody @Valid EbUserForm formData ) {
         boolean result = ebUserService.saveEbUser(request, formData);
         return Result.judge(result);

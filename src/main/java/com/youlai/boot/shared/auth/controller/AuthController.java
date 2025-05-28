@@ -1,5 +1,6 @@
 package com.youlai.boot.shared.auth.controller;
 
+import com.youlai.boot.common.annotation.AesEncrypt;
 import com.youlai.boot.common.enums.LogModuleEnum;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.shared.auth.service.AuthService;
@@ -30,6 +31,7 @@ public class AuthController {
 
     @Operation(summary = "获取登录验证码")
     @GetMapping("/captcha")
+    @AesEncrypt
     public Result<CaptchaInfo> getCaptcha() {
         CaptchaInfo captcha = authService.getCaptcha();
         return Result.success(captcha);

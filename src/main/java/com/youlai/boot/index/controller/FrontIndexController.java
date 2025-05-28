@@ -1,6 +1,7 @@
 package com.youlai.boot.index.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.youlai.boot.common.annotation.AesEncrypt;
 import com.youlai.boot.common.result.PageResult;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.game.model.vo.GameCategoryResultVO;
@@ -28,12 +29,14 @@ public class FrontIndexController {
 
     @Operation(summary = "全局配置请求")
     @GetMapping("/index")
+    @AesEncrypt
     private Result<FrontIndexResultVo> getIndexAdminData() {
         return Result.success(indexService.getIndexFrontData());
     }
 
     @Operation(summary = "游戏分页列表")
     @PostMapping("/page")
+    @AesEncrypt
     public PageResult<GameCategoryResultVO> getGameCategoryPage(@RequestBody PageQuerys pageQuerys) {
         Page<GameCategoryResultVO> gameCategoryResultList = gameCategoryService.getGameCategoryResultList(pageQuerys.getOne(), pageQuerys.getTwo());
         return PageResult.success(gameCategoryResultList);
