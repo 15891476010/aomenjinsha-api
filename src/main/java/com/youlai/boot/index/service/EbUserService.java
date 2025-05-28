@@ -6,6 +6,7 @@ import com.youlai.boot.index.model.entity.EbUser;
 import com.youlai.boot.index.model.form.EbUserForm;
 import com.youlai.boot.index.model.form.EbUserLoginRequest;
 import com.youlai.boot.index.model.query.EbUserQuery;
+import com.youlai.boot.index.model.vo.EbUserBalanceVO;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.index.model.vo.EbUserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -72,4 +73,14 @@ public interface EbUserService extends IService<EbUser> {
     AuthenticationToken login(HttpServletRequest request, EbUserLoginRequest loginRequest);
 
     EbUserFrontVO getCurrentUserInfo();
+
+    /**
+     * 获取用户余额
+     */
+    EbUserBalanceVO getUserBalance();
+
+    /**
+     * 余额归户
+     */
+    boolean transfer();
 }

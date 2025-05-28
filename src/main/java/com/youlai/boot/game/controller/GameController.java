@@ -1,14 +1,11 @@
 package com.youlai.boot.game.controller;
 
 import com.youlai.boot.common.result.Result;
-import com.youlai.boot.game.model.form.GameCategoryForm;
-import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.game.service.GameService;
+import com.youlai.boot.index.model.vo.EbUserBalanceVO;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

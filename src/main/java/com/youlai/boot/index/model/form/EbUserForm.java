@@ -2,6 +2,7 @@ package com.youlai.boot.index.model.form;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -61,4 +62,7 @@ public class EbUserForm implements Serializable {
 
     @Schema(description = "验证码Key")
     private String captchaKey;
+
+    @Schema(description = "余额")
+    private BigDecimal balance;
 }

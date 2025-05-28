@@ -2,6 +2,7 @@ package com.youlai.boot.index.controller;
 
 import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.common.enums.LogModuleEnum;
+import com.youlai.boot.index.model.vo.EbUserBalanceVO;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.index.service.EbUserService;
 import com.youlai.boot.system.model.dto.CurrentUserDTO;
@@ -33,7 +34,7 @@ import java.net.http.HttpRequest;
  */
 @Tag(name = "前端用户接口")
 @RestController
-@RequestMapping("/api/v1/eb-user")
+@RequestMapping("/api/v2/user")
 @RequiredArgsConstructor
 public class EbUserController  {
 
@@ -92,5 +93,18 @@ public class EbUserController  {
     public Result<EbUserFrontVO> getCurrentUser() {
         EbUserFrontVO currentUserInfo = ebUserService.getCurrentUserInfo();
         return Result.success(currentUserInfo);
+    }
+
+
+    @Operation(summary = "获取用户余额")
+    @GetMapping("/balance")
+    public Result<EbUserBalanceVO> balance() {
+        return Result.success(ebUserService.getUserBalance());
+    }
+
+    @Operation(summary = "免转钱包下注")
+    @GetMapping("/transfer")
+    public Result<Boolean> transfer() {
+        return Result.judge(ebUserService.transfer());
     }
 }

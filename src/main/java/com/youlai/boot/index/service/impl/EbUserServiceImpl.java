@@ -10,6 +10,7 @@ import com.youlai.boot.core.security.token.TokenManager;
 import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.game.service.GameService;
 import com.youlai.boot.index.model.form.EbUserLoginRequest;
+import com.youlai.boot.index.model.vo.EbUserBalanceVO;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
@@ -34,6 +35,7 @@ import com.youlai.boot.index.model.vo.EbUserVO;
 import com.youlai.boot.index.converter.EbUserConverter;
 import com.youlai.boot.core.security.model.EbUserDetails;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 import cn.hutool.core.lang.Assert;
@@ -225,5 +227,20 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
         Long frontUserId = SecurityUtils.getFrontUserId();
         EbUser byId = this.getById(frontUserId);
         return ebUserConverter.toFrontVO(byId);
+    }
+
+    @Override
+    public EbUserBalanceVO getUserBalance() {
+        Long frontUserId = SecurityUtils.getFrontUserId();
+        EbUser byId = baseMapper.selectById(frontUserId);
+        return ebUserConverter.toBalanceVO(byId);
+    }
+
+    @Override
+    public boolean transfer() {
+        Long frontUserId = SecurityUtils.getFrontUserId();
+        EbUser byId = baseMapper.selectById(frontUserId);
+        byId.setBalance(BigDecimal.valueOf(0));
+        return updateById(byId);
     }
 }

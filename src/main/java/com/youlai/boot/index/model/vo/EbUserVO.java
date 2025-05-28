@@ -2,6 +2,7 @@ package com.youlai.boot.index.model.vo;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -25,8 +26,6 @@ public class EbUserVO implements Serializable {
     private Integer id;
     @Schema(description = "用户名")
     private String username;
-    @Schema(description = "密码")
-    private String password;
     @Schema(description = "昵称")
     private String nickName;
     @Schema(description = "头像")
@@ -37,16 +36,14 @@ public class EbUserVO implements Serializable {
     private String phone;
     @Schema(description = "邮箱")
     private String email;
-    @Schema(description = "支付密码")
-    private String payPassword;
     @Schema(description = "国家")
     private String county;
     @Schema(description = "最后一次登录ip")
     private String ip;
+    @Schema(description = "余额")
+    private BigDecimal balance;
     @Schema(description = "账号状态")
     private Boolean status;
-    @Schema(description = "是否删除")
-    private Boolean isDeleted;
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
     @Schema(description = "更新时间")

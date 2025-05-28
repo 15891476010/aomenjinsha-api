@@ -1,5 +1,6 @@
 package com.youlai.boot.index.converter;
 
+import com.youlai.boot.index.model.vo.EbUserBalanceVO;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.index.model.vo.EbUserVO;
 import org.mapstruct.Mapper;
@@ -25,4 +26,6 @@ public interface EbUserConverter{
     List<EbUserVO> toVOList(List<EbUser> entityList);
 
     EbUserFrontVO  toFrontVO(EbUser entity);
+
+    EbUserBalanceVO toBalanceVO(EbUser entity);
 }
