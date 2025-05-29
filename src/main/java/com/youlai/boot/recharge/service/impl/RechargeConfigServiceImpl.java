@@ -3,6 +3,7 @@ package com.youlai.boot.recharge.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.CommonPage;
+import com.youlai.boot.recharge.model.entity.RechargeSecond;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -16,8 +17,7 @@ import com.youlai.boot.recharge.model.query.RechargeConfigQuery;
 import com.youlai.boot.recharge.model.vo.RechargeConfigVO;
 import com.youlai.boot.recharge.converter.RechargeConfigConverter;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.lang.Assert;
@@ -113,6 +113,23 @@ public class RechargeConfigServiceImpl extends ServiceImpl<RechargeConfigMapper,
                 .map(Long::parseLong)
                 .toList();
         return this.removeByIds(idList);
+    }
+
+    @Override
+    public List<Map<String, Object>> getOptions() {
+        LambdaQueryWrapper<RechargeConfig> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RechargeConfig::getStatus, true);
+        List<RechargeConfig> list = baseMapper.selectList(wrapper);
+        ArrayList<Map<String, Object>> objects = new ArrayList<>();
+        if (ObjectUtil.isNotEmpty(list)) {
+            list.forEach(rechargeCategory -> {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("label", rechargeCategory.getName());
+                map.put("value", rechargeCategory.getId().intValue());
+                objects.add(map);
+            });
+        }
+        return objects;
     }
 
 }

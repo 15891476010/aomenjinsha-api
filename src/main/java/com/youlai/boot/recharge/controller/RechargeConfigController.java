@@ -18,6 +18,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 充值分类子配置前端控制层
  *
@@ -77,5 +80,12 @@ public class RechargeConfigController  {
     ) {
         boolean result = rechargeConfigService.deleteRechargeConfigs(ids);
         return Result.judge(result);
+    }
+
+    @Operation(summary = "Options")
+    @GetMapping("/options")
+    @PreAuthorize("@ss.hasPerm('recharge:recharge-category:query')")
+    public Result<List<Map<String, Object>>> getOptions() {
+        return Result.success(rechargeConfigService.getOptions());
     }
 }

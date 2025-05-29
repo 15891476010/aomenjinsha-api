@@ -101,12 +101,14 @@ public class EbUserController  {
     @Operation(summary = "获取用户余额")
     @PostMapping("/balance")
     public Result<EbUserBalanceVO> balance() {
+        System.out.println("获取用户余额接口被调用");
         return Result.success(ebUserService.getUserBalance());
     }
 
     @Operation(summary = "免转钱包下注")
     @PostMapping("/transfer")
     public Result<Boolean> transfer() {
+        System.out.println("免转钱包下注接口被调用");
         return Result.judge(ebUserService.transfer());
     }
 }

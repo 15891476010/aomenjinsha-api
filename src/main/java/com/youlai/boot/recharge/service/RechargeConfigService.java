@@ -7,6 +7,9 @@ import com.youlai.boot.recharge.model.query.RechargeConfigQuery;
 import com.youlai.boot.recharge.model.vo.RechargeConfigVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 充值分类子配置服务类
  *
@@ -54,5 +57,10 @@ public interface RechargeConfigService extends IService<RechargeConfig> {
      * @return 是否删除成功
      */
     boolean deleteRechargeConfigs(String ids);
+
+    /**
+     * 获取Options
+     */
+    List<Map<String, Object>> getOptions();
 
 }

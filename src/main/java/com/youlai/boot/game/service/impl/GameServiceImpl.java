@@ -58,7 +58,7 @@ public class GameServiceImpl implements GameService {
         map.put("currency", currency);
         map.put("language", language);
         map.put("timestamp", timestamp);
-//        map.put("with_html", 1);
+        map.put("with_html", 1);
         map.put("sign", sign);
         try {
             Map<String, Object> post = HttpClientUtil.post(BASE_URL + "/player/play_url", map);
