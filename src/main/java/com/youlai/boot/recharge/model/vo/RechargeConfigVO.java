@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * 充值分类子配置视图对象
@@ -44,4 +45,5 @@ public class RechargeConfigVO implements Serializable {
     private LocalDateTime createTime;
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
+    private List<RechargeSecondVO> second;
 }

@@ -202,5 +202,5 @@ wx:
 # api接口加密配置
 encrypt:
   secret-key: 7a9K3pR2eF5gH8jL1qW4sD6xZ0cV2bN3
-  enabled: false
+  enabled: true
   algorithm: AES

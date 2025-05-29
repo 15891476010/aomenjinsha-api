@@ -59,4 +59,8 @@ public interface RechargeCategoryService extends IService<RechargeCategory> {
     boolean deleteRechargeCategorys(String ids);
     List<Map<String, Object>> getRechargeCategoryOptions();
 
+    /**
+     * 前端获取充值分类
+     */
+    List<RechargeCategoryVO> getRechargeCategoryList();
 }

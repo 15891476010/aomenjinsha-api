@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 充值分类视图对象
@@ -36,4 +37,5 @@ public class RechargeCategoryVO implements Serializable {
     private LocalDateTime createTime;
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
+    private List<RechargeConfigVO> config;
 }

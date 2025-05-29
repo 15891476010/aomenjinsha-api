@@ -9,6 +9,8 @@ import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.index.model.FrontIndexResultVo;
 import com.youlai.boot.index.model.PageQuerys;
 import com.youlai.boot.index.service.IndexService;
+import com.youlai.boot.recharge.model.vo.RechargeCategoryVO;
+import com.youlai.boot.recharge.service.RechargeCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,8 @@ public class FrontIndexController {
     private IndexService indexService;
     @Autowired
     private GameCategoryService gameCategoryService;
+    @Autowired
+    private RechargeCategoryService rechargeCategoryService;
 
     @Operation(summary = "全局配置请求")
     @GetMapping("/index")
@@ -40,5 +44,13 @@ public class FrontIndexController {
     public PageResult<GameCategoryResultVO> getGameCategoryPage(@RequestBody PageQuerys pageQuerys) {
         Page<GameCategoryResultVO> gameCategoryResultList = gameCategoryService.getGameCategoryResultList(pageQuerys.getOne(), pageQuerys.getTwo());
         return PageResult.success(gameCategoryResultList);
+    }
+
+    @Operation(summary = "前端查询充值配置")
+    @GetMapping("/recharge")
+    @AesEncrypt
+    public Result<List<RechargeCategoryVO>> getRecharge() {
+        List<RechargeCategoryVO> rechargeCategoryList = rechargeCategoryService.getRechargeCategoryList();
+        return Result.success(rechargeCategoryList);
     }
 }

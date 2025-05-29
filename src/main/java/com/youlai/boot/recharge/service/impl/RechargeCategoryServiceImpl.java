@@ -3,7 +3,20 @@ package com.youlai.boot.recharge.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.CommonPage;
+import com.youlai.boot.recharge.converter.RechargeConfigConverter;
+import com.youlai.boot.recharge.converter.RechargeSecondConverter;
+import com.youlai.boot.recharge.converter.RechargeThreeConverter;
+import com.youlai.boot.recharge.mapper.RechargeConfigMapper;
+import com.youlai.boot.recharge.mapper.RechargeSecondMapper;
+import com.youlai.boot.recharge.mapper.RechargeThreeMapper;
+import com.youlai.boot.recharge.model.entity.RechargeConfig;
+import com.youlai.boot.recharge.model.entity.RechargeSecond;
+import com.youlai.boot.recharge.model.entity.RechargeThree;
+import com.youlai.boot.recharge.model.vo.RechargeConfigVO;
+import com.youlai.boot.recharge.model.vo.RechargeSecondVO;
+import com.youlai.boot.recharge.model.vo.RechargeThreeVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -32,6 +45,20 @@ import cn.hutool.core.util.StrUtil;
 public class RechargeCategoryServiceImpl extends ServiceImpl<RechargeCategoryMapper, RechargeCategory> implements RechargeCategoryService {
 
     private final RechargeCategoryConverter rechargeCategoryConverter;
+
+    @Autowired
+    private RechargeConfigMapper RechargeConfigMapper;
+    @Autowired
+    private RechargeConfigConverter rechargeConfigConverter;
+
+    @Autowired
+    private RechargeSecondMapper RechargeSecondMapper;
+    @Autowired
+    private RechargeSecondConverter rechargeSecondConverter;
+
+    @Autowired
+    private RechargeThreeMapper RechargeThreeMapper;
+    private final RechargeThreeConverter rechargeThreeConverter;
 
     /**
      * 获取充值分类分页列表
@@ -122,6 +149,50 @@ public class RechargeCategoryServiceImpl extends ServiceImpl<RechargeCategoryMap
             });
         }
         return objects;
+    }
+
+    @Override
+    public List<RechargeCategoryVO> getRechargeCategoryList() {
+        // 查询一级分类
+        LambdaQueryWrapper<RechargeCategory> categoryWrapper = new LambdaQueryWrapper<>();
+        categoryWrapper.eq(RechargeCategory::getStatus, true)
+                      .orderByAsc(RechargeCategory::getSort);
+        List<RechargeCategory> rechargeCategories = baseMapper.selectList(categoryWrapper);
+        List<RechargeCategoryVO> voList = rechargeCategoryConverter.toVOList(rechargeCategories);
+
+        for (RechargeCategoryVO categoryVO : voList) {
+            // 查询二级配置
+            LambdaQueryWrapper<RechargeConfig> configWrapper = new LambdaQueryWrapper<>();
+            configWrapper.eq(RechargeConfig::getPid, categoryVO.getId())
+                         .eq(RechargeConfig::getStatus, true)
+                         .orderByAsc(RechargeConfig::getSort);
+            List<RechargeConfig> rechargeConfigs = RechargeConfigMapper.selectList(configWrapper);
+            List<RechargeConfigVO> configVOList = rechargeConfigConverter.toVOList(rechargeConfigs);
+            categoryVO.setConfig(configVOList);
+
+            for (RechargeConfigVO configVO : configVOList) {
+                // 查询三级配置
+                LambdaQueryWrapper<RechargeSecond> secondWrapper = new LambdaQueryWrapper<>();
+                secondWrapper.eq(RechargeSecond::getPid, configVO.getId())
+                             .eq(RechargeSecond::getStatus, true)
+                             .orderByAsc(RechargeSecond::getSort);
+                List<RechargeSecond> rechargeSeconds = RechargeSecondMapper.selectList(secondWrapper);
+                List<RechargeSecondVO> secondVOList = rechargeSecondConverter.toListEntity(rechargeSeconds);
+                configVO.setSecond(secondVOList);
+
+                for (RechargeSecondVO secondVO : secondVOList) {
+                    // 查询四级配置
+                    LambdaQueryWrapper<RechargeThree> threeWrapper = new LambdaQueryWrapper<>();
+                    threeWrapper.eq(RechargeThree::getPid, secondVO.getId())
+                                .eq(RechargeThree::getStatus, true)
+                                .orderByAsc(RechargeThree::getSort);
+                    List<RechargeThree> rechargeThrees = RechargeThreeMapper.selectList(threeWrapper);
+                    List<RechargeThreeVO> threeVOList = rechargeThreeConverter.toListEntity(rechargeThrees);
+                    secondVO.setThree(threeVOList);
+                }
+            }
+        }
+        return voList;
     }
 
 }
