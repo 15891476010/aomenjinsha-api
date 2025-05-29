@@ -46,7 +46,7 @@ public class ${entityName}ServiceImpl extends ServiceImpl<${entityName}Mapper, $
     public Page<${entityName}VO> get${entityName}Page(${entityName}Query queryParams) {
         Page<${entityName}> page = new Page<>(queryParams.getPageNum(), queryParams.getPageSize());
         LambdaQueryWrapper<${entityName}> wrapper = new LambdaQueryWrapper<>();
-        wrapper.orderByAsc(${entityName}::getSort)
+        wrapper.orderByAsc(${entityName}::getSort);
         if (ObjectUtil.isNotEmpty(queryParams.getStatus())) {
             wrapper.eq(${entityName}::getStatus, queryParams.getStatus());
         }

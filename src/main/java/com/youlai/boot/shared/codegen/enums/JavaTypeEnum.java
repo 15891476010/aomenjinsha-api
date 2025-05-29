@@ -20,7 +20,7 @@ public enum JavaTypeEnum {
     TEXT("text", "String", "string"),
     JSON("json", "String", "any"),
     INTEGER("int", "Integer", "number"),
-    TINYINT("tinyint", "Integer", "number"),
+    TINYINT("tinyint", "Boolean", "boolean"),
     SMALLINT("smallint", "Integer", "number"),
     MEDIUMINT("mediumint", "Integer", "number"),
     BIGINT("bigint", "Long", "number"),

@@ -292,11 +292,15 @@
         </div>
       </template>
     </el-dialog>
-    #if($fieldConfig.formType == "UPLOAD_IMAGE")
-      <ElDialog v-model="isShowPicture" width="90vw" title="选择图标" align-center destroy-on-close>
-        <PictureCom :choose-btn="true" @choose="handleChoose" />
-      </ElDialog>
-    #end
+  #if($fieldConfigs)
+      #foreach($fieldConfig in ${fieldConfigs})
+          #if($fieldConfig.formType == "UPLOAD_IMAGE")
+            <ElDialog v-model="isShowPicture" width="90vw" title="选择图标" align-center destroy-on-close>
+              <PictureCom :choose-btn="true" @choose="handleChoose" />
+            </ElDialog>
+          #end
+      #end
+  #end
   </div>
 </template>
 
@@ -307,12 +311,13 @@
   });
   import { getIndexData } from "@/utils/auth";
   const indexData = getIndexData();
-  #if($fieldConfig.formType == "UPLOAD_IMAGE")
-  import PictureCom from "@/views/maintain/picture/index.vue";
-  #end
-
-  #if($fieldConfig.formType == "UPLOAD_IMAGE")
-  const isShowPicture = ref(false);
+  #if($fieldConfigs)
+      #foreach($fieldConfig in ${fieldConfigs})
+          #if($fieldConfig.formType == "UPLOAD_IMAGE")
+            import PictureCom from "@/views/maintain/picture/index.vue";
+            const isShowPicture = ref(false);
+          #end
+      #end
   #end
 
   import ${entityName}API, { ${entityName}PageVO, ${entityName}Form, ${entityName}PageQuery } from "@/api/${moduleName}/${kebabCaseEntityName}";
@@ -452,17 +457,20 @@
         }
     );
   }
-#if($fieldConfig.formType == "UPLOAD_IMAGE")
-  function handleChooseIcon() {
-    isShowPicture.value = true;
-  }
-#end
-#if($fieldConfig.formType == "UPLOAD_IMAGE")
-  function handleChoose(data: any) {
-    formData.$fieldConfig.fieldName = data.sattDir;
-    isShowPicture.value = false;
-  }
-#end
+
+  #if($fieldConfigs)
+      #foreach($fieldConfig in ${fieldConfigs})
+          #if($fieldConfig.formType == "UPLOAD_IMAGE")
+              function handleChooseIcon() {
+                isShowPicture.value = true;
+              }
+              function handleChoose(data: any) {
+                formData.$fieldConfig.fieldName = data.sattDir;
+                isShowPicture.value = false;
+              }
+          #end
+      #end
+  #end
 
   onMounted(() => {
     handleQuery();

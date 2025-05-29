@@ -3,9 +3,10 @@ package ${packageName}.${moduleName}.${subpackageName};
 import org.mapstruct.Mapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import ${packageName}.${moduleName}.model.entity.${entityName};
-import
+import${packageName}.${moduleName}.model.form.${entityName}Form;
+import${packageName}.${moduleName}.model.vo.${entityName}VO;
 
-import java.util.List; ${packageName}.${moduleName}.model.form.${entityName}Form;
+import java.util.List;
 
 /**
  * $!{businessName}对象转换器
@@ -20,5 +21,5 @@ public interface ${entityName}Converter{
 
     ${entityName} toEntity(${entityName}Form formData);
 
-    List<${entityName}Vo> toListEntity(List<${entityName}> entitys);
+    List<${entityName}VO> toListEntity(List<${entityName}> entitys);
 }
