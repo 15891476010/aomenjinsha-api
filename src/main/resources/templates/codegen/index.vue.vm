@@ -26,8 +26,8 @@
                           <dict v-model="queryParams.$fieldConfig.fieldName" type="radio" code="$fieldConfig.dictType" />
                         #else
                           <el-radio-group v-model="queryParams.$fieldConfig.fieldName">
-                            <el-radio :key="1" :value="1">选项一</el-radio>
-                            <el-radio :key="2" :value="2">选项二</el-radio>
+                            <el-radio :key="true" :value="true">选项一</el-radio>
+                            <el-radio :key="false" :value="false">选项二</el-radio>
                           </el-radio-group>
                         #end
                     #elseif($fieldConfig.formType == "CHECK_BOX")
@@ -35,8 +35,8 @@
                           <dict v-model="queryParams.$fieldConfig.fieldName" type="checkbox" code="$fieldConfig.dictType" />
                         #else
                           <el-checkbox-group v-model="queryParams.$fieldConfig.fieldName">
-                            <el-checkbox :key="1" :label="1">选项一</el-checkbox>
-                            <el-checkbox :key="2" :label="2">选项二</el-checkbox>
+                            <el-checkbox :key="true" :label="true">选项一</el-checkbox>
+                            <el-checkbox :key="false" :label="false">选项二</el-checkbox>
                           </el-checkbox-group>
                         #end
                     #elseif($fieldConfig.formType == "INPUT_NUMBER")
@@ -139,6 +139,16 @@
                         <DictLabel v-model="scope.row.$fieldConfig.fieldName" code="$fieldConfig.dictType" />
                       </template>
                     </el-table-column>
+                  #elseif($fieldConfig.formType == "UPLOAD_IMAGE")
+                    <el-table-column key="$fieldConfig.fieldName" label="$fieldConfig.fieldComment" prop="$fieldConfig.fieldName" min-width="150" align="center">
+                      <template #default="scope">
+                        <el-image
+                            style="width: 50px; height: 50px"
+                            :src="indexData.imagePrefix + scope.row.$fieldConfig.fieldName"
+                            fit="contain"
+                        />
+                      </template>
+                    </el-table-column>
                   #else
                     <el-table-column
                         key="$fieldConfig.fieldName"
@@ -210,6 +220,14 @@
                             <el-option :value="1" label="选项二"/>
                           </el-select>
                         #end
+                    #elseif($fieldConfig.formType == "UPLOAD_IMAGE")
+                      <ElButton type="primary" @click="handleChooseIcon">$fieldConfig.fieldName</ElButton>
+                      <el-image
+                          v-if="formData.$fieldConfig.fieldName"
+                          style="width: 100px; height: 100px"
+                          :src="indexData.imagePrefix + formData.$fieldConfig.fieldName"
+                          fit="contain"
+                      />
                     #elseif($fieldConfig.formType == "RADIO")
                         #if($fieldConfig.dictType && $fieldConfig.dictType.trim() != "")
                           <dict v-model="queryParams.$fieldConfig.fieldName" type="radio" code="$fieldConfig.dictType" />
@@ -236,8 +254,8 @@
                     #elseif($fieldConfig.formType == "SWITCH")
                       <el-switch
                           v-model="formData.$fieldConfig.fieldName"
-                          :active-value="1"
-                          :inactive-value="0"
+                          :active-value="true"
+                          :inactive-value="false"
                       />
                     #elseif($fieldConfig.formType == "TEXT_AREA")
                       <el-input type="textarea"
@@ -274,6 +292,11 @@
         </div>
       </template>
     </el-dialog>
+    #if($fieldConfig.formType == "UPLOAD_IMAGE")
+      <ElDialog v-model="isShowPicture" width="90vw" title="选择图标" align-center destroy-on-close>
+        <PictureCom :choose-btn="true" @choose="handleChoose" />
+      </ElDialog>
+    #end
   </div>
 </template>
 
@@ -282,6 +305,15 @@
     name: "${entityName}",
     inheritAttrs: false,
   });
+  import { getIndexData } from "@/utils/auth";
+  const indexData = getIndexData();
+  #if($fieldConfig.formType == "UPLOAD_IMAGE")
+  import PictureCom from "@/views/maintain/picture/index.vue";
+  #end
+
+  #if($fieldConfig.formType == "UPLOAD_IMAGE")
+  const isShowPicture = ref(false);
+  #end
 
   import ${entityName}API, { ${entityName}PageVO, ${entityName}Form, ${entityName}PageQuery } from "@/api/${moduleName}/${kebabCaseEntityName}";
 
@@ -420,6 +452,17 @@
         }
     );
   }
+#if($fieldConfig.formType == "UPLOAD_IMAGE")
+  function handleChooseIcon() {
+    isShowPicture.value = true;
+  }
+#end
+#if($fieldConfig.formType == "UPLOAD_IMAGE")
+  function handleChoose(data: any) {
+    formData.$fieldConfig.fieldName = data.sattDir;
+    isShowPicture.value = false;
+  }
+#end
 
   onMounted(() => {
     handleQuery();

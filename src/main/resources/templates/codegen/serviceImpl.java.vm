@@ -1,5 +1,9 @@
 package ${packageName}.${moduleName}.${subpackageName};
 
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.youlai.boot.common.base.CommonPage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -36,15 +40,18 @@ public class ${entityName}ServiceImpl extends ServiceImpl<${entityName}Mapper, $
     * 获取${businessName}分页列表
     *
     * @param queryParams 查询参数
-    * @return {@link IPage<${entityName}VO>} $!{businessName}分页列表
+    * @return {@link Page<${entityName}VO>} $!{businessName}分页列表
     */
     @Override
-    public IPage<${entityName}VO> get${entityName}Page(${entityName}Query queryParams) {
-        Page<${entityName}VO> pageVO = this.baseMapper.get${entityName}Page(
-                new Page<>(queryParams.getPageNum(), queryParams.getPageSize()),
-                queryParams
-        );
-        return pageVO;
+    public Page<${entityName}VO> get${entityName}Page(${entityName}Query queryParams) {
+        Page<${entityName}> page = new Page<>(queryParams.getPageNum(), queryParams.getPageSize());
+        LambdaQueryWrapper<${entityName}> wrapper = new LambdaQueryWrapper<>();
+        wrapper.orderByAsc(${entityName}::getSort)
+        if (ObjectUtil.isNotEmpty(queryParams.getStatus())) {
+            wrapper.eq(${entityName}::getStatus, queryParams.getStatus());
+        }
+        Page<${entityName}> result = baseMapper.selectPage(page, wrapper);
+        return CommonPage.copyPageInfo(result, ${lowerFirstEntityName}Converter.toListEntity(result.getRecords()));
     }
     
     /**

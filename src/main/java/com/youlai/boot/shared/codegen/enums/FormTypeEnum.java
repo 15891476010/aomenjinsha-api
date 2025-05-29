@@ -65,7 +65,12 @@ public enum FormTypeEnum implements IBaseEnum<Integer> {
     /**
      * 隐藏域
      */
-    HIDDEN(10, "隐藏域");
+    HIDDEN(10, "隐藏域"),
+
+    /**
+     * 图片选择组件
+     */
+    UPLOAD_IMAGE(11, "图片选择");
 
 
     //  Mybatis-Plus 提供注解表示插入数据库时插入该值
