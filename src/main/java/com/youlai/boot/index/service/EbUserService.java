@@ -5,14 +5,15 @@ import com.youlai.boot.core.security.model.AuthenticationToken;
 import com.youlai.boot.index.model.entity.EbUser;
 import com.youlai.boot.index.model.form.EbUserForm;
 import com.youlai.boot.index.model.form.EbUserLoginRequest;
+import com.youlai.boot.index.model.query.EbUserGameBalanceQuery;
+import com.youlai.boot.index.model.query.EbUserGameTransferQuery;
 import com.youlai.boot.index.model.query.EbUserQuery;
-import com.youlai.boot.index.model.vo.EbUserBalanceVO;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.index.model.vo.EbUserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import jakarta.servlet.http.HttpServletRequest;
 
-import java.net.http.HttpRequest;
+import java.util.Map;
 
 /**
  * 前端用户服务类
@@ -77,10 +78,10 @@ public interface EbUserService extends IService<EbUser> {
     /**
      * 获取用户余额
      */
-    EbUserBalanceVO getUserBalance();
+    Map<String, Object> getUserBalance(EbUserGameBalanceQuery queryParams);
 
     /**
      * 余额归户
      */
-    boolean transfer();
+    Map<String, Object> transfer(EbUserGameTransferQuery queryParams);
 }

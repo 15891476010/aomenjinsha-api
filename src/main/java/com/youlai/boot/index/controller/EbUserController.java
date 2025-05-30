@@ -2,10 +2,10 @@ package com.youlai.boot.index.controller;
 
 import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.common.enums.LogModuleEnum;
-import com.youlai.boot.index.model.vo.EbUserBalanceVO;
+import com.youlai.boot.index.model.query.EbUserGameBalanceQuery;
+import com.youlai.boot.index.model.query.EbUserGameTransferQuery;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.index.service.EbUserService;
-import com.youlai.boot.system.model.dto.CurrentUserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import com.youlai.boot.common.annotation.AesEncrypt;
 
-import java.net.http.HttpRequest;
+import java.util.Map;
 
 /**
  * 前端用户前端控制层
@@ -100,15 +100,16 @@ public class EbUserController  {
 
     @Operation(summary = "获取用户余额")
     @PostMapping("/balance")
-    public Result<EbUserBalanceVO> balance() {
-        System.out.println("获取用户余额接口被调用");
-        return Result.success(ebUserService.getUserBalance());
+    public Map<String, Object> balance(EbUserGameBalanceQuery queryParams) {
+        System.out.println("获取用户余额接口被调用:");
+        System.out.println(queryParams);
+        return ebUserService.getUserBalance(queryParams);
     }
 
     @Operation(summary = "免转钱包下注")
     @PostMapping("/transfer")
-    public Result<Boolean> transfer() {
+    public Map<String, Object> transfer(EbUserGameTransferQuery queryParams) {
         System.out.println("免转钱包下注接口被调用");
-        return Result.judge(ebUserService.transfer());
+        return ebUserService.transfer(queryParams);
     }
 }

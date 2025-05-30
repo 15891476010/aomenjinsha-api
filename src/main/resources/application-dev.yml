@@ -91,6 +91,7 @@ security:
     - /api/v1/front/index           # 后台管理接口
     - /api/v1/user/login
     - /api/v1/user/register
+    - /api/v1/front/page
   # 非安全端点路径，完全绕过 Spring Security 的安全控制
   unsecured-urls:
     - ${springdoc.swagger-ui.path}

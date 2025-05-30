@@ -2,6 +2,7 @@ package com.youlai.boot.index.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.CommonPage;
+import com.youlai.boot.common.constant.SysConfigConstant;
 import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.common.exception.UsdtException;
 import com.youlai.boot.common.util.IPUtils;
@@ -10,7 +11,8 @@ import com.youlai.boot.core.security.token.TokenManager;
 import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.game.service.GameService;
 import com.youlai.boot.index.model.form.EbUserLoginRequest;
-import com.youlai.boot.index.model.vo.EbUserBalanceVO;
+import com.youlai.boot.index.model.query.EbUserGameBalanceQuery;
+import com.youlai.boot.index.model.query.EbUserGameTransferQuery;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
@@ -67,6 +69,8 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
 
     @Autowired
     private CaptchaUtil captchaUtil;
+    @Autowired
+    private ConfigService configService;
 
     /**
      * 获取前端用户分页列表
@@ -230,17 +234,70 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
     }
 
     @Override
-    public EbUserBalanceVO getUserBalance() {
-        Long frontUserId = SecurityUtils.getFrontUserId();
-        EbUser byId = baseMapper.selectById(frontUserId);
-        return ebUserConverter.toBalanceVO(byId);
+    public Map<String, Object> getUserBalance(EbUserGameBalanceQuery queryParams) {
+        // 获取商户id
+        String merchant_id = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_ID);
+        // 获取商户密钥
+        String merchant_secret = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_SECRET);
+        String signStr = merchant_id + queryParams.getPlayer_id() + queryParams.getTimestamp() + merchant_secret;
+        String s = MD5Util.md5(signStr);
+        if (!s.equals(queryParams.getSign())) {
+            throw new UsdtException("签名错误");
+        }
+        EbUser byId = baseMapper.selectById(queryParams.getPlayer_id());
+        Map<String, Object> map = new HashMap<>();
+        map.put("success", "1");
+        map.put("balance", byId.getBalance().toString());
+        map.put("currency", queryParams.getCurrency());
+        map.put("ts", queryParams.getTimestamp());
+        return map;
     }
 
     @Override
-    public boolean transfer() {
-        Long frontUserId = SecurityUtils.getFrontUserId();
-        EbUser byId = baseMapper.selectById(frontUserId);
-        byId.setBalance(BigDecimal.valueOf(0));
-        return updateById(byId);
+    public Map<String, Object> transfer(EbUserGameTransferQuery queryParams) {
+        // 获取商户id
+        String merchant_id = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_ID);
+        // 获取商户密钥
+        String merchant_secret = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_SECRET);
+        String signStr = merchant_id + queryParams.getPlayer_id() + queryParams.getTransactionid() + queryParams.getNet_amount() + queryParams.getTimestamp() + merchant_secret;
+        String s = MD5Util.md5(signStr);
+        if (!s.equals(queryParams.getSign())) {
+            throw new UsdtException("签名错误");
+        }
+        EbUser byId = baseMapper.selectById(queryParams.getPlayer_id());
+        BigDecimal betAmount = new BigDecimal(queryParams.getBet_amount());
+        if (byId.getBalance().compareTo(betAmount) < 0) {
+            // 余额不足的处理逻辑
+            Map<String, Object> map = new HashMap<>();
+            map.put("success", "0");
+            map.put("balance", byId.getBalance().toString());
+            map.put("currency", queryParams.getCurrency());
+            map.put("ts", queryParams.getTimestamp());
+            map.put("err_code", "3202");
+            return map;
+        }
+
+        BigDecimal winAmount = new BigDecimal(queryParams.getWin_amount());
+        BigDecimal netAmount = new BigDecimal(queryParams.getNet_amount());
+        BigDecimal add = byId.getBalance().add(netAmount);
+        // 判断盈利差值是否等于盈利金额减去投注金额
+        if (winAmount.subtract(betAmount).compareTo(netAmount) != 0 || add.compareTo(BigDecimal.ZERO) < 0) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("success", "0");
+            map.put("balance", byId.getBalance().toString());
+            map.put("currency", queryParams.getCurrency());
+            map.put("ts", queryParams.getTimestamp());
+            map.put("err_code", ""); // 可自定义错误码
+            return map;
+        }
+        byId.setBalance(add);
+        baseMapper.updateById(byId);
+        // 正常返回
+        Map<String, Object> map = new HashMap<>();
+        map.put("success", "1");
+        map.put("balance", byId.getBalance().toString());
+        map.put("currency", queryParams.getCurrency());
+        map.put("ts", queryParams.getTimestamp());
+        return map;
     }
 }

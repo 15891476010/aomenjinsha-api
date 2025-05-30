@@ -2,7 +2,6 @@ package com.youlai.boot.game.controller;
 
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.game.service.GameService;
-import com.youlai.boot.index.model.vo.EbUserBalanceVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;

@@ -1,10 +1,8 @@
 package com.youlai.boot.index.converter;
 
-import com.youlai.boot.index.model.vo.EbUserBalanceVO;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.index.model.vo.EbUserVO;
 import org.mapstruct.Mapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.index.model.entity.EbUser;
 import com.youlai.boot.index.model.form.EbUserForm;
 
@@ -26,6 +24,4 @@ public interface EbUserConverter{
     List<EbUserVO> toVOList(List<EbUser> entityList);
 
     EbUserFrontVO  toFrontVO(EbUser entity);
-
-    EbUserBalanceVO toBalanceVO(EbUser entity);
 }
