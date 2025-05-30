@@ -10,10 +10,13 @@ import com.youlai.boot.core.security.model.AuthenticationToken;
 import com.youlai.boot.core.security.token.TokenManager;
 import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.game.service.GameService;
+import com.youlai.boot.index.converter.UserTransferConverter;
 import com.youlai.boot.index.model.form.EbUserLoginRequest;
+import com.youlai.boot.index.model.form.UserTransferForm;
 import com.youlai.boot.index.model.query.EbUserGameBalanceQuery;
 import com.youlai.boot.index.model.query.EbUserGameTransferQuery;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
+import com.youlai.boot.index.service.UserTransferService;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
 import com.youlai.boot.system.service.UserRoleService;
@@ -71,6 +74,11 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
     private CaptchaUtil captchaUtil;
     @Autowired
     private ConfigService configService;
+
+    private final UserTransferConverter userTransferConverter;
+
+    @Autowired
+    private UserTransferService userTransferService;
 
     /**
      * 获取前端用户分页列表
@@ -259,13 +267,13 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
         String merchant_id = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_ID);
         // 获取商户密钥
         String merchant_secret = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_SECRET);
-        String signStr = merchant_id + queryParams.getPlayer_id() + queryParams.getTransactionid() + queryParams.getNet_amount() + queryParams.getTimestamp() + merchant_secret;
+        String signStr = merchant_id + queryParams.getPlayerId() + queryParams.getTransactionid() + queryParams.getNetAmount() + queryParams.getTimestamp() + merchant_secret;
         String s = MD5Util.md5(signStr);
         if (!s.equals(queryParams.getSign())) {
             throw new UsdtException("签名错误");
         }
-        EbUser byId = baseMapper.selectById(queryParams.getPlayer_id());
-        BigDecimal betAmount = new BigDecimal(queryParams.getBet_amount());
+        EbUser byId = baseMapper.selectById(queryParams.getPlayerId());
+        BigDecimal betAmount = new BigDecimal(queryParams.getBetAmount());
         if (byId.getBalance().compareTo(betAmount) < 0) {
             // 余额不足的处理逻辑
             Map<String, Object> map = new HashMap<>();
@@ -277,8 +285,8 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
             return map;
         }
 
-        BigDecimal winAmount = new BigDecimal(queryParams.getWin_amount());
-        BigDecimal netAmount = new BigDecimal(queryParams.getNet_amount());
+        BigDecimal winAmount = new BigDecimal(queryParams.getWinAmount());
+        BigDecimal netAmount = new BigDecimal(queryParams.getNetAmount());
         BigDecimal add = byId.getBalance().add(netAmount);
         // 判断盈利差值是否等于盈利金额减去投注金额
         if (winAmount.subtract(betAmount).compareTo(netAmount) != 0 || add.compareTo(BigDecimal.ZERO) < 0) {
@@ -292,6 +300,8 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
         }
         byId.setBalance(add);
         baseMapper.updateById(byId);
+        UserTransferForm form = userTransferConverter.toForm(queryParams);
+        userTransferService.saveUserTransfer(form);
         // 正常返回
         Map<String, Object> map = new HashMap<>();
         map.put("success", "1");

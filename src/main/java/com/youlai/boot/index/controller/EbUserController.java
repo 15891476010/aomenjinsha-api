@@ -4,6 +4,7 @@ import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.common.enums.LogModuleEnum;
 import com.youlai.boot.index.model.query.EbUserGameBalanceQuery;
 import com.youlai.boot.index.model.query.EbUserGameTransferQuery;
+import com.youlai.boot.index.model.query.EbUserGameTransferQueryVo;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.index.service.EbUserService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -101,15 +102,24 @@ public class EbUserController  {
     @Operation(summary = "获取用户余额")
     @PostMapping("/balance")
     public Map<String, Object> balance(EbUserGameBalanceQuery queryParams) {
-        System.out.println("获取用户余额接口被调用:");
-        System.out.println(queryParams);
         return ebUserService.getUserBalance(queryParams);
     }
 
     @Operation(summary = "免转钱包下注")
     @PostMapping("/transfer")
-    public Map<String, Object> transfer(EbUserGameTransferQuery queryParams) {
-        System.out.println("免转钱包下注接口被调用");
+    public Map<String, Object> transfer(EbUserGameTransferQueryVo ebUserGameTransferQuery) {
+        EbUserGameTransferQuery queryParams = new EbUserGameTransferQuery();
+        queryParams.setBetAmount(ebUserGameTransferQuery.getBet_amount());
+        queryParams.setWinAmount(ebUserGameTransferQuery.getWin_amount());
+        queryParams.setNetAmount(ebUserGameTransferQuery.getNet_amount());
+        queryParams.setPlayerId(ebUserGameTransferQuery.getPlayer_id());
+        queryParams.setCurrency(ebUserGameTransferQuery.getCurrency());
+        queryParams.setTransactionid(ebUserGameTransferQuery.getTransactionid());
+        queryParams.setParentTransactionid(ebUserGameTransferQuery.getParent_transactionid());
+        queryParams.setIsEndRound(ebUserGameTransferQuery.getIs_end_round());
+        queryParams.setGid(ebUserGameTransferQuery.getGid());
+        queryParams.setTimestamp(ebUserGameTransferQuery.getTimestamp());
+        queryParams.setSign(ebUserGameTransferQuery.getSign());
         return ebUserService.transfer(queryParams);
     }
 }
