@@ -21,7 +21,7 @@ import java.util.List;
 
 @Tag(name = "0、管理端全局配置")
 @RestController
-@RequestMapping("/api/v1/front")
+@RequestMapping("/api/v2/front")
 @RequiredArgsConstructor
 public class FrontIndexController {
     @Autowired

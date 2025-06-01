@@ -8,6 +8,7 @@ import com.youlai.boot.game.mapper.GameCategoryDataMapper;
 import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.index.mapper.EbUserMapper;
+import com.youlai.boot.index.model.entity.EbUser;
 import com.youlai.boot.index.service.EbUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,11 +63,24 @@ public class UserTransferServiceImpl extends ServiceImpl<UserTransferMapper, Use
         List<UserTransferVO> listEntity = userTransferConverter.toListEntity(result.getRecords());
         LambdaQueryWrapper<GameCategoryData> wrapper1 = new LambdaQueryWrapper<>();
         listEntity.forEach(item -> {
-            item.setUsername(ebUserMapper.selectById(item.getPlayerId()).getUsername());
+            if  (ObjectUtil.isNull(item.getPlayerId())) {
+                item.setUsername("未知");
+            } else {
+                EbUser user = ebUserMapper.selectById(item.getPlayerId());
+                if  (ObjectUtil.isNull(user)) {
+                    item.setUsername("未知");
+                } else {
+                    item.setUsername(user.getUsername());
+                }
+            }
             wrapper1.eq(GameCategoryData::getTargetUrl, item.getGid());
             List<GameCategoryData> gameCategoryData = gameCategoryDataMapper.selectList(wrapper1);
             // 取第一个作为游戏名称
-            item.setGameName(gameCategoryData.get(0).getTitle());
+            if (!gameCategoryData.isEmpty()) {
+                 item.setGameName(gameCategoryData.get(0).getTitle());
+            } else {
+                 item.setGameName("未知");
+            }
         });
         return CommonPage.copyPageInfo(result, listEntity);
     }

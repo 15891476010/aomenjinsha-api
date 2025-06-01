@@ -88,10 +88,10 @@ security:
     - /api/v1/auth/logout         # 开放退出登录
     - /ws/**                      # WebSocket接口
     - /api/v1/admin/index           # 后台管理接口
-    - /api/v1/front/index           # 后台管理接口
+    - /api/v2/front/index           # 后台管理接口
     - /api/v1/user/login
     - /api/v1/user/register
-    - /api/v1/front/page
+    - /api/v2/front/page
   # 非安全端点路径，完全绕过 Spring Security 的安全控制
   unsecured-urls:
     - ${springdoc.swagger-ui.path}
@@ -100,6 +100,7 @@ security:
     - /v3/api-docs/**
     - /webjars/**
     - /favicon.ico
+    - /api/v1/front/page
 
 # 文件存储配置
 oss:
@@ -203,5 +204,5 @@ wx:
 # api接口加密配置
 encrypt:
   secret-key: 7a9K3pR2eF5gH8jL1qW4sD6xZ0cV2bN3
-  enabled: true
+  enabled: false
   algorithm: AES
