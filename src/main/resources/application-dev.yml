@@ -11,7 +11,7 @@ spring:
   data:
     redis:
       database: 12
-      host: 192.168.2.18
+      host: 127.0.0.1
       port: 6379
       # 如果Redis 服务未设置密码，需要将password删掉或注释，而不是设置为空字符串
       password: zhangze123..
@@ -100,7 +100,7 @@ security:
     - /v3/api-docs/**
     - /webjars/**
     - /favicon.ico
-    - /api/v1/front/page
+    - /api/v2/front/page
 
 # 文件存储配置
 oss:

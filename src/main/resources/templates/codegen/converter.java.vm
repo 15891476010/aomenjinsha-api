@@ -3,8 +3,8 @@ package ${packageName}.${moduleName}.${subpackageName};
 import org.mapstruct.Mapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import ${packageName}.${moduleName}.model.entity.${entityName};
-import${packageName}.${moduleName}.model.form.${entityName}Form;
-import${packageName}.${moduleName}.model.vo.${entityName}VO;
+import ${packageName}.${moduleName}.model.form.${entityName}Form;
+import ${packageName}.${moduleName}.model.vo.${entityName}VO;
 
 import java.util.List;
 

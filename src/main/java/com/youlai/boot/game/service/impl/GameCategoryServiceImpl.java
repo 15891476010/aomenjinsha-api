@@ -22,8 +22,7 @@ import com.youlai.boot.game.model.query.GameCategoryQuery;
 import com.youlai.boot.game.model.vo.GameCategoryVO;
 import com.youlai.boot.game.converter.GameCategoryConverter;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.lang.Assert;
@@ -131,11 +130,23 @@ public class GameCategoryServiceImpl extends ServiceImpl<GameCategoryMapper, Gam
 
         List<GameCategoryResultVO> resultVoList = gameCategoryConverter.toResultVoList(gameCategoryPage.getRecords());
 
+        List<GameCategoryDataVO> objects = new ArrayList<>();
         resultVoList.forEach(item -> {
             gameCategoryDataQuery.setPid(item.getId());
             Page<GameCategoryDataVO> gameCategoryDataPage = gameCategoryDataService.getGameCategoryDataPage(gameCategoryDataQuery);
             item.setGameCategoryData(gameCategoryDataPage.getRecords());
+            gameCategoryDataPage.getRecords().forEach(data -> {
+                if (data.getIsHot()) {
+                    objects.add(data);
+                }
+            });
         });
+        for (GameCategoryResultVO gameCategoryResultVO : resultVoList) {
+            if (Objects.equals(gameCategoryResultVO.getTitle(), "热门")) {
+                Collections.reverse(objects);
+                gameCategoryResultVO.setGameCategoryData(objects);
+            }
+        }
         return CommonPage.copyPageInfo(gameCategoryPage, resultVoList);
     }
 
