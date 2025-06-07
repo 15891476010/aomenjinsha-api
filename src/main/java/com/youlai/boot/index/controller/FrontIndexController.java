@@ -1,5 +1,6 @@
 package com.youlai.boot.index.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.common.annotation.AesEncrypt;
 import com.youlai.boot.common.result.PageResult;
@@ -8,16 +9,24 @@ import com.youlai.boot.game.model.vo.GameCategoryResultVO;
 import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.index.model.FrontIndexResultVo;
 import com.youlai.boot.index.model.PageQuerys;
+import com.youlai.boot.index.model.form.ActiviteForm;
+import com.youlai.boot.index.model.query.ActiviteQuery;
+import com.youlai.boot.index.model.vo.ActiviteVO;
+import com.youlai.boot.index.service.ActiviteService;
+import com.youlai.boot.index.service.ActivityTypeService;
 import com.youlai.boot.index.service.IndexService;
 import com.youlai.boot.recharge.model.vo.RechargeCategoryVO;
 import com.youlai.boot.recharge.service.RechargeCategoryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "0、管理端全局配置")
 @RestController
@@ -30,6 +39,8 @@ public class FrontIndexController {
     private GameCategoryService gameCategoryService;
     @Autowired
     private RechargeCategoryService rechargeCategoryService;
+    private final ActivityTypeService activityTypeService;
+    private final ActiviteService activiteService;
 
     @Operation(summary = "全局配置请求")
     @GetMapping("/index")
@@ -52,5 +63,30 @@ public class FrontIndexController {
     public Result<List<RechargeCategoryVO>> getRecharge() {
         List<RechargeCategoryVO> rechargeCategoryList = rechargeCategoryService.getRechargeCategoryList();
         return Result.success(rechargeCategoryList);
+    }
+
+    @Operation(summary = "Options")
+    @GetMapping("/getActivityTypeOptions")
+    @AesEncrypt
+    public Result<List<Map<String, Object>>> getOptions() {
+        return Result.success(activityTypeService.getOptions());
+    }
+
+    @Operation(summary = "活动表分页列表")
+    @GetMapping("/getActiviteList")
+    @AesEncrypt
+    public Result<List<ActiviteVO>> getActivitePage(@RequestParam("pid") Integer pid) {
+        ActiviteQuery queryParams = new ActiviteQuery();
+        queryParams.setPid(pid);
+        List<ActiviteVO> activiteList = activiteService.getActiviteList(queryParams);
+        return Result.success(activiteList);
+    }
+
+    @Operation(summary = "获取活动表表单数据")
+    @GetMapping("/getActivite/{id}")
+    @AesEncrypt
+    public Result<ActiviteForm> getActiviteForm(@PathVariable Long id) {
+        ActiviteForm formData = activiteService.getActiviteFormData(id);
+        return Result.success(formData);
     }
 }
