@@ -41,4 +41,6 @@ public class EbUserFrontVO implements Serializable {
     private BigDecimal balance;
     @Schema(description = "vip等级")
     private Integer vipLevel;
+    @Schema(description = "投注金额")
+    private String betAmount;
 }

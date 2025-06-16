@@ -10,6 +10,7 @@ import com.youlai.boot.game.model.vo.GameCategoryVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 游戏分类服务类
@@ -63,5 +64,10 @@ public interface GameCategoryService extends IService<GameCategory> {
      * 联查游戏列表
      */
     Page<GameCategoryResultVO> getGameCategoryResultList(BasePageQuery one, BasePageQuery two);
+
+    /**
+     * 获取Options
+     */
+    List<Map<String, Object>> getOptions();
 
 }

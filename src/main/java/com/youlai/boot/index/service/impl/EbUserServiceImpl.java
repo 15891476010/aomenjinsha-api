@@ -11,6 +11,7 @@ import com.youlai.boot.core.security.token.TokenManager;
 import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.game.service.GameService;
 import com.youlai.boot.index.converter.UserTransferConverter;
+import com.youlai.boot.index.model.entity.UserTransfer;
 import com.youlai.boot.index.model.form.EbUserLoginRequest;
 import com.youlai.boot.index.model.form.UserTransferForm;
 import com.youlai.boot.index.model.query.EbUserGameBalanceQuery;
@@ -238,7 +239,15 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
     public EbUserFrontVO getCurrentUserInfo() {
         Long frontUserId = SecurityUtils.getFrontUserId();
         EbUser byId = this.getById(frontUserId);
-        return ebUserConverter.toFrontVO(byId);
+        EbUserFrontVO frontVO = ebUserConverter.toFrontVO(byId);
+        LambdaQueryWrapper<UserTransfer> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(UserTransfer::getPlayerId, frontUserId);
+        List<UserTransfer> list = userTransferService.list(wrapper);
+        BigDecimal totalBetAmount = list.stream()
+                .map(item -> new BigDecimal(item.getBetAmount()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        frontVO.setBetAmount(totalBetAmount.toString());
+        return frontVO;
     }
 
     @Override

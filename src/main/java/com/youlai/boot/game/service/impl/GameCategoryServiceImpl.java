@@ -4,10 +4,14 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.BasePageQuery;
 import com.youlai.boot.common.base.CommonPage;
+import com.youlai.boot.game.converter.GameCategoryDataConverter;
+import com.youlai.boot.game.model.entity.GameCategoryData;
+import com.youlai.boot.game.model.entity.GamePlatType;
 import com.youlai.boot.game.model.query.GameCategoryDataQuery;
 import com.youlai.boot.game.model.vo.GameCategoryDataVO;
 import com.youlai.boot.game.model.vo.GameCategoryResultVO;
 import com.youlai.boot.game.service.GameCategoryDataService;
+import com.youlai.boot.game.service.GamePlatTypeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,9 +43,12 @@ import cn.hutool.core.util.StrUtil;
 public class GameCategoryServiceImpl extends ServiceImpl<GameCategoryMapper, GameCategory> implements GameCategoryService {
 
     private final GameCategoryConverter gameCategoryConverter;
+    private final GameCategoryDataConverter gameCategoryDataConverter;
 
     @Autowired
     private GameCategoryDataService gameCategoryDataService;
+    @Autowired
+    private GamePlatTypeService gamePlatTypeService;
 
     /**
      * 获取游戏分类分页列表
@@ -123,31 +130,45 @@ public class GameCategoryServiceImpl extends ServiceImpl<GameCategoryMapper, Gam
         gameCategoryQuery.setStatus(true);
         Page<GameCategoryVO> gameCategoryPage = getGameCategoryPage(gameCategoryQuery);
 
-
-        GameCategoryDataQuery gameCategoryDataQuery = new GameCategoryDataQuery();
-        gameCategoryDataQuery.setPageNum(two.getPageNum());
-        gameCategoryDataQuery.setPageSize(two.getPageSize());
-
         List<GameCategoryResultVO> resultVoList = gameCategoryConverter.toResultVoList(gameCategoryPage.getRecords());
 
-        List<GameCategoryDataVO> objects = new ArrayList<>();
-        resultVoList.forEach(item -> {
-            gameCategoryDataQuery.setPid(item.getId());
-            Page<GameCategoryDataVO> gameCategoryDataPage = gameCategoryDataService.getGameCategoryDataPage(gameCategoryDataQuery);
-            item.setGameCategoryData(gameCategoryDataPage.getRecords());
-            gameCategoryDataPage.getRecords().forEach(data -> {
-                if (data.getIsHot()) {
-                    objects.add(data);
-                }
-            });
-        });
+        LambdaQueryWrapper<GameCategoryData> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(GameCategoryData::getIsHot, true);
+        List<GameCategoryData> objects = gameCategoryDataService.list(wrapper);
+        LambdaQueryWrapper<GamePlatType> wrapper1 = new LambdaQueryWrapper<>();
         for (GameCategoryResultVO gameCategoryResultVO : resultVoList) {
             if (Objects.equals(gameCategoryResultVO.getTitle(), "热门")) {
-                Collections.reverse(objects);
-                gameCategoryResultVO.setGameCategoryData(objects);
+                gameCategoryResultVO.setGameCategoryData(gameCategoryDataConverter.toVoList(objects));
+            } else {
+                // 查询所有GamePlatType记录
+                List<GamePlatType> allGamePlatTypes = gamePlatTypeService.list(wrapper1);
+
+                // 筛选出gameType列表包含当前categoryId的GamePlatType
+                List<GamePlatType> matchedTypes = allGamePlatTypes.stream()
+                        .filter(type -> type.getGameType() != null && type.getGameType().contains(gameCategoryResultVO.getId()))
+                        .collect(Collectors.toList());
+
+                // 将匹配的结果设置到VO中
+                gameCategoryResultVO.setGamePlatType(matchedTypes);
             }
         }
         return CommonPage.copyPageInfo(gameCategoryPage, resultVoList);
+    }
+
+    @Override
+    public List<Map<String, Object>> getOptions() {
+        LambdaQueryWrapper<GameCategory> wrapper = new LambdaQueryWrapper<>();
+        List<GameCategory> list = baseMapper.selectList(wrapper);
+        ArrayList<Map<String, Object>> objects = new ArrayList<>();
+        if (ObjectUtil.isNotEmpty(list)) {
+            list.forEach(rechargeCategory -> {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("label", rechargeCategory.getTitle());
+                map.put("value", rechargeCategory.getId().intValue());
+                objects.add(map);
+            });
+        }
+        return objects;
     }
 
 }

@@ -41,6 +41,8 @@ public class IndexServiceImpl implements IndexService {
         String shopTitle = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_SHOP_TITLE);
         String shopLogo = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_SHOP_LOGO);
         String systemConfig = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_SHOP_TITLES);
+        String shopWebsiteName = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_SHOP_WEBSITE_NAME);
+        String shopWebsiteFavicon = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_SHOP_WEBSITE_FAVICON);
         frontIndexResultVo.setTitle(shopTitle);
         frontIndexResultVo.setTitles(systemConfig);
         frontIndexResultVo.setLogo(shopLogo);
@@ -50,6 +52,8 @@ public class IndexServiceImpl implements IndexService {
         frontIndexResultVo.setBanner(banner);
         frontIndexResultVo.setNoticeBar(noticeBar);
         frontIndexResultVo.setTargetUrl(targetUrl);
+        frontIndexResultVo.setWebsiteName(shopWebsiteName);
+        frontIndexResultVo.setFavicon(shopWebsiteFavicon);
         return frontIndexResultVo;
     }
 }

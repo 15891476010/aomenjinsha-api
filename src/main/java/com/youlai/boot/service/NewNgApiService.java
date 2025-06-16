@@ -1,11 +1,17 @@
 package com.youlai.boot.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.youlai.boot.common.constant.SysGroupConstants;
+import com.youlai.boot.service.model.GameParams;
+import com.youlai.boot.system.service.SysGroupDataService;
 import com.youlai.boot.utils.HttpClientUtil;
 import com.youlai.boot.utils.MD5Util;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -18,53 +24,50 @@ import java.util.Random;
  */
 @Service
 public class NewNgApiService {
-    
-    protected static String creatememberaccountUrl;          // 创建会员账户
-    protected static String getbalanceUrl;                   // 查询余额
-    protected static String getplatformbalanceUrl;           // 查询全平台余额
-    protected static String conversionallUrl;                // 一键转出全平台额度
-    protected static String gameloginUrl;                    // 获取游戏登录地址
-    protected static String demologinUrl;                    // 获取demo游戏登录地址
-    protected static String gameorderUrl;                    // 游戏订单查询
-    protected static String gamerealtimerecordsUrl;          // 实时游戏记录
-    protected static String gamehistoryrecordsUrl;           // 历史游戏记录
-    protected static String conversionUrl;                   // 额度转换
-    protected static String conversionStatusUrl;             // 额度转换状态查询
-    protected static String gamecodeUrl;                     // 获取游戏代码
-    protected static String getmerchantBalanceUrl;           // 查询商户余额
+
+    @Autowired
+    private SysGroupDataService sysGroupDataService;
+
+    private String creatememberaccountUrl;          // 创建会员账户
+    private String getbalanceUrl;                   // 查询余额
+    private String getplatformbalanceUrl;           // 查询全平台余额
+    private String conversionallUrl;                // 一键转出全平台额度
+    private String gameloginUrl;                    // 获取游戏登录地址
+    private String demologinUrl;                    // 获取demo游戏登录地址
+    private String gameorderUrl;                    // 游戏订单查询
+    private String gamerealtimerecordsUrl;          // 实时游戏记录
+    private String gamehistoryrecordsUrl;           // 历史游戏记录
+    private String conversionUrl;                   // 额度转换
+    private String conversionStatusUrl;             // 额度转换状态查询
+    private String gamecodeUrl;                     // 获取游戏代码
+    private String getmerchantBalanceUrl;           // 查询商户余额
  
-    protected static String apiUrl;                          // API接口域名
-    protected static String sn;                              // 注册开通后商户前缀,请登录管理后台查看
-    protected static String secretKey;                       // 注册开通后商户密钥,请登录管理后台查看
-    protected static String platType;                        // 设置平台类型 全部小写
-    protected static String currency;                        // 币种代码
-    protected static String sign;                            // 32 位小写 md5(random+sn+secretKey)
-    protected static String random;                          // 随机字符串16-32 位 小写字母 + 数字
+    private String apiUrl;                          // API接口域名
+    private String sn;                              // 注册开通后商户前缀,请登录管理后台查看
+    private String secretKey;                       // 注册开通后商户密钥,请登录管理后台查看
+    private String currency;                        // 币种代码
+    private String sign;                            // 32 位小写 md5(random+sn+secretKey)
+    private String random;                          // 随机字符串16-32 位 小写字母 + 数字
     
-    protected static final String GAME_TYPE_LIVE = "1";      // 视讯
-    protected static final String GAME_TYPE_SLOT = "2";      // 老虎机
-    protected static final String GAME_TYPE_LOTTERY = "3";   // 彩票
-    protected static final String GAME_TYPE_SPORTS = "4";    // 体育
-    protected static final String GAME_TYPE_ESPORTS = "5";   // 电竞
-    protected static final String GAME_TYPE_FISHING = "6";   // 捕鱼
-    protected static final String GAME_TYPE_POKER = "7";     // 棋牌
+    private final String GAME_TYPE_LIVE = "1";      // 视讯
+    private final String GAME_TYPE_SLOT = "2";      // 老虎机
+    private final String GAME_TYPE_LOTTERY = "3";   // 彩票
+    private final String GAME_TYPE_SPORTS = "4";    // 体育
+    private final String GAME_TYPE_ESPORTS = "5";   // 电竞
+    private final String GAME_TYPE_FISHING = "6";   // 捕鱼
+    private final String GAME_TYPE_POKER = "7";     // 棋牌
     
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    
-    // 静态初始化块，替代构造函数
-    static {
-        initializeApiSettings();
-    }
     
     /**
      * 初始化API设置
      */
-    public static void initializeApiSettings() {
-        apiUrl = "接口域名";                      // API接口域名
-        sn = "商户前缀";                          // 注册开通后商户前缀,请登录管理后台查看  
-        secretKey = "商户密钥";                    // 注册开通后商户密钥,请登录管理后台查看
+    private void initializeApiSettings() {
+        GameParams gameParams = getGameParams();
+        apiUrl = gameParams.getApiUrl();         // API接口域名
+        sn = gameParams.getMerchantPrefix();     // 注册开通后商户前缀,请登录管理后台查看
+        secretKey = gameParams.getMerchantSecret(); // 注册开通后商户密钥,请登录管理后台查看
         currency = "CNY";                        // 货币
-        platType = "ag";                         // 游戏平台参数
         
         refreshRandomAndSign();
         
@@ -86,7 +89,7 @@ public class NewNgApiService {
     /**
      * 刷新随机字符串和签名
      */
-    public static void refreshRandomAndSign() {
+    private void refreshRandomAndSign() {
         random = generateRandom(16, 32);
         sign = MD5Util.md5(random + sn + secretKey);
     }
@@ -97,7 +100,7 @@ public class NewNgApiService {
      * @param username 玩家账号，长度限制 5-11 位 小写字母 + 数字组合
      * @return 创建结果
      */
-    public static String register(String username) {
+    public String register(String username, String platType) {
         Map<String, Object> data = new HashMap<>();
         data.put("playerId", username);
         data.put("platType", platType);
@@ -112,7 +115,7 @@ public class NewNgApiService {
      * @param username 玩家账号
      * @return 余额查询结果
      */
-    public static String getbalance(String username) {
+    public String getbalance(String username, String platType) {
         Map<String, Object> data = new HashMap<>();
         data.put("platType", platType);
         data.put("playerId", username);
@@ -127,7 +130,7 @@ public class NewNgApiService {
      * @param username 玩家账号
      * @return 全平台余额查询结果
      */
-    public static String getbalanceall(String username) {
+    public String getbalanceall(String username) {
         Map<String, Object> data = new HashMap<>();
         data.put("playerId", username);
         data.put("currency", currency);
@@ -146,7 +149,7 @@ public class NewNgApiService {
      * @param oddsType 彩票盘口，A:(默认)、B、C，仅IG彩票和SGWin彩票可选
      * @return 游戏登录地址
      */
-    public static String gamelogin(String username, String lang, String gameCode, String returnUrl, String ingress, String oddsType) {
+    public String gamelogin(String username, String lang, String gameCode, String returnUrl, String ingress, String oddsType, String platType) {
         Map<String, Object> data = new HashMap<>();
         data.put("platType", platType);
         data.put("playerId", username);
@@ -168,7 +171,7 @@ public class NewNgApiService {
      * @param pageSize 每页记录数
      * @return 实时下注记录
      */
-    public static String gamerealtimerecords(int page, int pageSize) {
+    public String gamerealtimerecords(int page, int pageSize) {
         Map<String, Object> data = new HashMap<>();
         data.put("currency", currency);
         data.put("pageNo", page);
@@ -182,7 +185,7 @@ public class NewNgApiService {
      * 
      * @return 游戏代码列表
      */
-    public static String gamecode() {
+    public String gamecode(String platType) {
         Map<String, Object> data = new HashMap<>();
         data.put("platType", platType);
         
@@ -194,7 +197,7 @@ public class NewNgApiService {
      * 
      * @return 商户平台额度
      */
-    public static String quota() {
+    public String quota() {
         Map<String, Object> data = new HashMap<>();
         
         return sendRequest(getmerchantBalanceUrl, data);
@@ -207,7 +210,7 @@ public class NewNgApiService {
      * @param data 请求数据
      * @return 响应内容
      */
-    private static String sendRequest(String url, Map<String, Object> data) {
+    private String sendRequest(String url, Map<String, Object> data) {
         try {
             // 在每次请求前刷新随机字符串和签名，确保安全性
             refreshRandomAndSign();
@@ -240,7 +243,7 @@ public class NewNgApiService {
      * @param maxLength 最大长度
      * @return 随机字符串
      */
-    private static String generateRandom(int minLength, int maxLength) {
+    private String generateRandom(int minLength, int maxLength) {
         String characters = "abcdefghijklmnopqrstuvwxyz0123456789";
         Random random = new Random();
         int length = random.nextInt(maxLength - minLength + 1) + minLength;
@@ -251,5 +254,11 @@ public class NewNgApiService {
         }
         
         return sb.toString();
+    }
+
+    private GameParams getGameParams() {
+        GameParams gameParams = new GameParams();
+        List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_ADMIN_PROVIDER_LIST);
+        return gameParams;
     }
 }

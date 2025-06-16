@@ -1,5 +1,6 @@
 package com.youlai.boot.game.model.vo;
 
+import com.youlai.boot.game.model.entity.GamePlatType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,4 +34,6 @@ public class GameCategoryResultVO implements Serializable {
     private String noIcon;
     @Schema(description = "游戏列表数据")
     private List<GameCategoryDataVO> gameCategoryData;
+    @Schema(description = "游戏平台数据")
+    private List<GamePlatType> gamePlatType;
 }

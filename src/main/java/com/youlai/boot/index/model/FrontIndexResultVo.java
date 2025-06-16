@@ -27,4 +27,8 @@ public class FrontIndexResultVo {
     private String logo;
     @Schema(description = "商城副标题")
     private String titles;
+    @Schema(description = "商城网站名称")
+    private String websiteName;
+    @Schema(description = "商城网站图标")
+    private String favicon;
 }

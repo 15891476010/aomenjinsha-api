@@ -69,6 +69,8 @@ public class SysConfigConstant {
     public static final String CONFIG_KEY_SHOP_TITLE = "title"; // 商城标题
     public static final String CONFIG_KEY_SHOP_LOGO = "logo"; // 商城logo
     public static final String CONFIG_KEY_SHOP_TITLES = "titles"; // 商城副标题
+    public static final String CONFIG_KEY_SHOP_WEBSITE_NAME = "websiteName"; // 商城网址名称
+    public static final String CONFIG_KEY_SHOP_WEBSITE_FAVICON = "favicon"; // 商城网站图标
 
     // 验证码配置
     public static final String CONFIG_KEY_CAPTCHA_TYPE = "captchaType"; // 验证码类型
