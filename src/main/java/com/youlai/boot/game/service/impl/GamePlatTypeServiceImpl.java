@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.youlai.boot.common.base.CommonPage;
+import com.youlai.boot.service.NewNgApiService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -19,6 +20,7 @@ import com.youlai.boot.game.converter.GamePlatTypeConverter;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.lang.Assert;
@@ -35,6 +37,7 @@ import cn.hutool.core.util.StrUtil;
 public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, GamePlatType> implements GamePlatTypeService {
 
     private final GamePlatTypeConverter gamePlatTypeConverter;
+    private final NewNgApiService newNgApiService;
 
     /**
      * 获取游戏平台列表分页列表
@@ -120,6 +123,11 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
                 .map(Long::parseLong)
                 .toList();
         return this.removeByIds(idList);
+    }
+
+    @Override
+    public Map<String, Object> getGamePlatType(String platType) {
+        return newNgApiService.gamecode(platType);
     }
 
 }

@@ -7,6 +7,8 @@ import com.youlai.boot.game.model.vo.GamePlatTypeVO;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.Map;
+
 /**
  * 游戏平台列表服务类
  *
@@ -55,4 +57,8 @@ public interface GamePlatTypeService extends IService<GamePlatType> {
      */
     boolean deleteGamePlatTypes(String ids);
 
+    /**
+     * 获取游戏代码
+     */
+    Map<String, Object> getGamePlatType(String platType);
 }

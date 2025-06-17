@@ -18,6 +18,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
+import java.util.Map;
+
 /**
  * 游戏平台列表前端控制层
  *
@@ -77,5 +79,12 @@ public class GamePlatTypeController  {
     ) {
         boolean result = gamePlatTypeService.deleteGamePlatTypes(ids);
         return Result.judge(result);
+    }
+
+    @Operation(summary = "获取游戏平台列表")
+    @GetMapping("/getGamePlatType")
+    public Result<Map<String, Object>> getGamePlatType(@RequestParam("platType") String platType) {
+        Map<String, Object> result = gamePlatTypeService.getGamePlatType(platType);
+        return Result.success(result);
     }
 }

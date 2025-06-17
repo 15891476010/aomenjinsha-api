@@ -18,6 +18,7 @@ import com.youlai.boot.index.model.query.EbUserGameBalanceQuery;
 import com.youlai.boot.index.model.query.EbUserGameTransferQuery;
 import com.youlai.boot.index.model.vo.EbUserFrontVO;
 import com.youlai.boot.index.service.UserTransferService;
+import com.youlai.boot.service.NewNgApiService;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
 import com.youlai.boot.system.service.UserRoleService;
@@ -80,6 +81,9 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
 
     @Autowired
     private UserTransferService userTransferService;
+
+    @Autowired
+    private NewNgApiService newNgApiService;
 
     /**
      * 获取前端用户分页列表

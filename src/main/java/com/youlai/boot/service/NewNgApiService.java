@@ -100,7 +100,8 @@ public class NewNgApiService {
      * @param username 玩家账号，长度限制 5-11 位 小写字母 + 数字组合
      * @return 创建结果
      */
-    public String register(String username, String platType) {
+    public Map<String, Object> register(String username, String platType) {
+        initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("playerId", username);
         data.put("platType", platType);
@@ -115,7 +116,8 @@ public class NewNgApiService {
      * @param username 玩家账号
      * @return 余额查询结果
      */
-    public String getbalance(String username, String platType) {
+    public Map<String, Object> getbalance(String username, String platType) {
+        initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("platType", platType);
         data.put("playerId", username);
@@ -130,7 +132,8 @@ public class NewNgApiService {
      * @param username 玩家账号
      * @return 全平台余额查询结果
      */
-    public String getbalanceall(String username) {
+    public Map<String, Object> getbalanceall(String username) {
+        initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("playerId", username);
         data.put("currency", currency);
@@ -149,7 +152,8 @@ public class NewNgApiService {
      * @param oddsType 彩票盘口，A:(默认)、B、C，仅IG彩票和SGWin彩票可选
      * @return 游戏登录地址
      */
-    public String gamelogin(String username, String lang, String gameCode, String returnUrl, String ingress, String oddsType, String platType) {
+    public Map<String, Object> gamelogin(String username, String lang, String gameCode, String returnUrl, String ingress, String oddsType, String platType) {
+        initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("platType", platType);
         data.put("playerId", username);
@@ -171,7 +175,8 @@ public class NewNgApiService {
      * @param pageSize 每页记录数
      * @return 实时下注记录
      */
-    public String gamerealtimerecords(int page, int pageSize) {
+    public Map<String, Object> gamerealtimerecords(int page, int pageSize) {
+        initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("currency", currency);
         data.put("pageNo", page);
@@ -185,7 +190,8 @@ public class NewNgApiService {
      * 
      * @return 游戏代码列表
      */
-    public String gamecode(String platType) {
+    public Map<String, Object> gamecode(String platType) {
+        initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("platType", platType);
         
@@ -197,7 +203,8 @@ public class NewNgApiService {
      * 
      * @return 商户平台额度
      */
-    public String quota() {
+    public Map<String, Object> quota() {
+        initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         
         return sendRequest(getmerchantBalanceUrl, data);
@@ -210,28 +217,67 @@ public class NewNgApiService {
      * @param data 请求数据
      * @return 响应内容
      */
-    private String sendRequest(String url, Map<String, Object> data) {
+    private Map<String, Object> sendRequest(String url, Map<String, Object> data) {
         try {
-            // 在每次请求前刷新随机字符串和签名，确保安全性
             refreshRandomAndSign();
+        
+            // 详细的调试信息
+            System.out.println("=== NG API 详细调试信息 ===");
+            System.out.println("配置信息:");
+            System.out.println("  - sn (商户前缀): " + (sn != null ? sn : "[NULL]"));
+            System.out.println("  - secretKey: " + (secretKey != null ? "[已设置,长度:" + secretKey.length() + "]" : "[NULL]"));
+            System.out.println("  - apiUrl: " + (apiUrl != null ? apiUrl : "[NULL]"));
+            System.out.println("签名计算:");
+            System.out.println("  - random: " + (random != null ? random : "[NULL]"));
+            System.out.println("  - 签名原文: " + (random != null && sn != null && secretKey != null ? 
+                (random + sn + secretKey) : "[缺少参数]"));
+            System.out.println("  - sign (MD5): " + (sign != null ? sign : "[NULL]"));
+
+            // 验证必要参数
+            if (sn == null || sn.trim().isEmpty()) {
+                throw new RuntimeException("sn (商户前缀) 未设置或为空");
+            }
+            if (secretKey == null || secretKey.trim().isEmpty()) {
+                throw new RuntimeException("secretKey (商户密钥) 未设置或为空");
+            }
+            if (random == null || random.trim().isEmpty()) {
+                throw new RuntimeException("random (随机字符串) 生成失败");
+            }
+            if (sign == null || sign.trim().isEmpty()) {
+                throw new RuntimeException("sign (签名) 生成失败");
+            }
+
+            // 构建请求头 - 按照PHP示例的格式：'key:value'
+            Map<String, String> headers = new HashMap<>();
+            headers.put("sn", sn);
+            headers.put("sign", sign);
+            headers.put("random", random);
+            headers.put("Content-Type", "application/json");
+
+            // 构建请求体
+            String requestBody = data.isEmpty() ? "{}" : objectMapper.writeValueAsString(data);
+
+            // 打印完整请求信息
+            System.out.println("请求信息:");
+            System.out.println("  - URL: " + url);
+            System.out.println("  - Method: POST");
+            System.out.println("  - Headers: " + headers);
+            System.out.println("  - Body: " + requestBody);
+            System.out.println("  - Body Length: " + requestBody.length());
+            System.out.println("=== 开始发送请求 ===");
+
+            // 发送请求并获取响应
+            Map<String, Object> response = HttpClientUtil.postWithHeaders(url, requestBody, headers);
             
-            // 合并请求数据和请求头到单个Map中
-            Map<String, Object> requestParams = new HashMap<>(data);
+            System.out.println("=== 请求完成 ===");
+            System.out.println("响应结果: " + response);
             
-            // 添加请求头信息为特殊字段
-            requestParams.put("_headers", new HashMap<String, Object>() {{
-                put("sn", sn);
-                put("sign", sign);
-                put("random", random);
-                put("Content-Type", "application/json");
-            }});
-            
-            // 调用HttpClientUtil发送请求
-            Map<String, Object> responseMap = HttpClientUtil.post(url, requestParams);
-            
-            // 将响应结果转换为JSON字符串返回
-            return objectMapper.writeValueAsString(responseMap);
+            return response;
         } catch (Exception e) {
+            System.err.println("=== API请求异常 ===");
+            System.err.println("异常类型: " + e.getClass().getSimpleName());
+            System.err.println("异常信息: " + e.getMessage());
+            e.printStackTrace();
             throw new RuntimeException("API请求失败: " + e.getMessage(), e);
         }
     }
@@ -259,6 +305,16 @@ public class NewNgApiService {
     private GameParams getGameParams() {
         GameParams gameParams = new GameParams();
         List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_ADMIN_PROVIDER_LIST);
+        listMapByGid.forEach(map -> {
+            // 检测provider字段中只要包含NG的
+            if (map.get("provider").toString().contains("NG")) {
+                gameParams.setMerchant(map.get("provider").toString());
+                gameParams.setMerchantSecret(map.get("MerchantKey").toString());
+                gameParams.setApiUrl(map.get("domain").toString());
+                gameParams.setMerchantId(map.get("MerchantID").toString());
+                gameParams.setMerchantPrefix(map.get("prefix").toString());
+            }
+        });
         return gameParams;
     }
 }

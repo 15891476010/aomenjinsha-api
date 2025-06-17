@@ -27,54 +27,112 @@ public class HttpClientUtil {
      * @throws IOException 请求异常
      */
     public static Map<String, Object> post(String url, Map<String, Object> params) throws IOException {
-        // 1. 将 Map 转换为 JSON 字符串
-        String json = JSON.toJSONString(params);
-        System.out.println(">>> 请求的 JSON 数据:\n" + json);
-
-        // 2. 创建 RequestBody
-        RequestBody requestBody = RequestBody.create(
-                json,
-                MediaType.parse("application/json; charset=utf-8")
-        );
-
-        // 3. 构建请求对象
-        Request request = new Request.Builder()
-                .url(url)
-                .post(requestBody)
-                .addHeader("Accept", "application/json")
-                .build();
-
-        // 4. 打印请求信息
-        System.out.println(">>> 请求头:\n" + request.headers());
-
-        // 5. 发送请求并处理响应
-        try (Response response = client.newCall(request).execute()) {
-            System.out.println("<<< HTTP 状态码: " + response.code());
-
-            String responseBody = response.body().string();
-            System.out.println("<<< 响应内容:\n" + responseBody);
-
-            // 将 JSON 响应转换为 Map
-            Map<String, Object> responseMap = JSON.parseObject(responseBody, Map.class);
-
-            // 提取 data 字段的内容
-            if (responseMap != null && responseMap.containsKey("data")) {
-                Object data = responseMap.get("data");
-                if (data instanceof Map) {
-                    return (Map<String, Object>) data;
-                } else {
-                    // 如果 data 不是 Map 类型，可以抛异常或返回包含 data 的 Map
-                    Map<String, Object> result = new HashMap<>();
-                    result.put("data", data);
-                    return result;
+        try {
+            // 1. 提取headers（如果存在）
+            Map<String, Object> headers = new HashMap<>();
+            if (params.containsKey("_headers")) {
+                Object headersObj = params.get("_headers");
+                if (headersObj instanceof Map) {
+                    headers = (Map<String, Object>) headersObj;
                 }
-            } else {
-                // 如果没有 data 字段，返回整个响应
-                return responseMap;
+                // 从params中移除headers，避免重复发送
+                params.remove("_headers");
+            }
+
+            // 2. 将 Map 转换为 JSON 字符串
+            String json = JSON.toJSONString(params);
+            System.out.println(">>> 请求的 JSON 数据:\n" + json);
+
+            // 3. 创建 RequestBody
+            RequestBody requestBody = RequestBody.create(
+                    json,
+                    MediaType.parse("application/json; charset=utf-8")
+            );
+
+            // 4. 构建请求对象并添加headers
+            Request.Builder requestBuilder = new Request.Builder()
+                    .url(url)
+                    .post(requestBody)
+                    .addHeader("Accept", "application/json");
+
+            // 添加从_headers提取的请求头
+            headers.forEach((key, value) -> {
+                if (value != null) {
+                    requestBuilder.addHeader(key, value.toString());
+                }
+            });
+
+            Request request = requestBuilder.build();
+
+            // 5. 打印请求信息
+            System.out.println(">>> 请求头:\n" + request.headers());
+
+            // 6. 发送请求并处理响应
+            try (Response response = client.newCall(request).execute()) {
+                System.out.println("<<< HTTP 状态码: " + response.code());
+
+                String responseBody = response.body().string();
+                System.out.println("<<< 响应内容:\n" + responseBody);
+
+                // 将 JSON 响应转换为 Map
+                Map<String, Object> responseMap = JSON.parseObject(responseBody, Map.class);
+
+                // 提取 data 字段的内容
+                if (responseMap != null && responseMap.containsKey("data")) {
+                    Object data = responseMap.get("data");
+                    if (data instanceof Map) {
+                        return (Map<String, Object>) data;
+                    } else {
+                        // 如果 data 不是 Map 类型，可以抛异常或返回包含 data 的 Map
+                        Map<String, Object> result = new HashMap<>();
+                        result.put("data", data);
+                        return result;
+                    }
+                } else {
+                    // 如果没有 data 字段，返回整个响应
+                    return responseMap;
+                }
             }
         } catch (IOException e) {
             System.err.println("!!! 请求失败: " + e.getMessage());
             throw e;
         }
     }
+
+    public static Map<String, Object> postWithHeaders(String url,
+                                                      String requestBody,
+                                                      Map<String, String> headers) throws IOException {
+
+        try {
+            // 1. 创建RequestBody
+            RequestBody body = RequestBody.create(
+                    requestBody,
+                    MediaType.parse("application/json; charset=utf-8")
+            );
+
+            // 2. 构建请求
+            Request.Builder builder = new Request.Builder()
+                    .url(url)
+                    .post(body);
+
+            // 3. 添加所有请求头
+            headers.forEach((key, value) -> {
+                builder.addHeader(key, value);
+            });
+
+            Request request = builder.build();
+
+            // 4. 发送请求
+            try (Response response = client.newCall(request).execute()) {
+                String responseBody = response.body().string();
+                System.out.println("<<< 响应内容:\n" + responseBody);
+                return JSON.parseObject(responseBody, Map.class);
+            }
+        } catch (IOException e) {
+            System.err.println("请求失败: " + e.getMessage());
+            throw e;
+        }
+    }
+
+
 } 
