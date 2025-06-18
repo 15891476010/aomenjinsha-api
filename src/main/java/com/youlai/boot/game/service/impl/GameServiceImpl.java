@@ -48,7 +48,7 @@ public class GameServiceImpl implements GameService {
         int timestamp = (int) Instant.now().getEpochSecond();
         // 获取当前玩家id
         Long player_id = SecurityUtils.getFrontUserId();
-        String gameid = byId.getTargetUrl();
+        String gameid = byId.getGameCode();
         String signStr = merchant_id + player_id + currency + gameid + timestamp + merchant_secret;
         String sign = MD5Util.md5(signStr);
         Map<String, Object> map = new HashMap<>();

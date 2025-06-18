@@ -73,7 +73,7 @@ public class UserTransferServiceImpl extends ServiceImpl<UserTransferMapper, Use
                     item.setUsername(user.getUsername());
                 }
             }
-            wrapper1.eq(GameCategoryData::getTargetUrl, item.getGid());
+            wrapper1.eq(GameCategoryData::getGameCode, item.getGid());
             List<GameCategoryData> gameCategoryData = gameCategoryDataMapper.selectList(wrapper1);
             // 取第一个作为游戏名称
             if (!gameCategoryData.isEmpty()) {

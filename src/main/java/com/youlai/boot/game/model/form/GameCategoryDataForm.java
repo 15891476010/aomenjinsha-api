@@ -13,7 +13,7 @@ import jakarta.validation.constraints.*;
  * 游戏列表单对象
  *
  * @author MrZhang
- * @since 2025-05-18 19:33
+ * @since 2025-06-18 18:11
  */
 @Getter
 @Setter
@@ -44,17 +44,39 @@ public class GameCategoryDataForm implements Serializable {
     @Schema(description = "状态")
     private Boolean status;
 
-    @Schema(description = "跳转链接")
-    @Size(max=255, message="跳转链接长度不能超过255个字符")
-    private String targetUrl;
-
     @Schema(description = "描述标签")
+    @Size(max=255, message="描述标签长度不能超过255个字符")
     private String tag;
 
+    @Schema(description = "是否热门")
     private Boolean isHot;
 
-    /**
-     * 供应商id
-     */
+    @Schema(description = "游戏平台")
+    @Size(max=255, message="游戏平台长度不能超过255个字符")
+    private String platType;
+
+    @Schema(description = "简体中文")
+    @Size(max=255, message="简体中文长度不能超过255个字符")
+    private String zhHans;
+
+    @Schema(description = "繁体中文")
+    @Size(max=255, message="繁体中文长度不能超过255个字符")
+    private String zhHant;
+
+    @Schema(description = "英语")
+    @Size(max=255, message="英语长度不能超过255个字符")
+    private String en;
+
+    @Schema(description = "支持终端类型，1:电脑网页、2:手机网页、3:电脑/手机网页")
+    private Integer ingress;
+
+    @Schema(description = "跳转链接")
+    @Size(max=255, message="跳转链接长度不能超过255个字符")
+    private String gameCode;
+
+    @Schema(description = "供应商")
+    @Size(max=255, message="供应商长度不能超过255个字符")
     private String provider;
+
+
 }

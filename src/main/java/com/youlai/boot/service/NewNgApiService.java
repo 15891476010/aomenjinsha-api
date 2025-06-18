@@ -231,7 +231,6 @@ public class NewNgApiService {
             headers.put("sign", sign.trim());
             headers.put("random", random.trim());
             headers.put("Content-Type", "application/json");
-            headers.put("User-Agent", "Apifox/1.0.0 (https://apifox.com)");
 
             // 使用原始 JSON 字符串（完全模拟 curl）
             String rawJson = buildRawJson(data);

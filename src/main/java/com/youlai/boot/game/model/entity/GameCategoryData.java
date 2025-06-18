@@ -10,7 +10,7 @@ import com.youlai.boot.common.base.BaseEntity;
  * 游戏列实体对象
  *
  * @author MrZhang
- * @since 2025-05-18 19:33
+ * @since 2025-06-18 18:11
  */
 @Getter
 @Setter
@@ -40,10 +40,6 @@ public class GameCategoryData extends BaseEntity {
      */
     private Boolean status;
     /**
-     * 跳转链接
-     */
-    private String targetUrl;
-    /**
      * 是否删除
      */
     private Boolean isDeleted;
@@ -56,7 +52,31 @@ public class GameCategoryData extends BaseEntity {
      */
     private Boolean isHot;
     /**
-     * 供应商id
+     * 游戏平台
+     */
+    private String platType;
+    /**
+     * 简体中文
+     */
+    private String zhHans;
+    /**
+     * 繁体中文
+     */
+    private String zhHant;
+    /**
+     * 英语
+     */
+    private String en;
+    /**
+     * 支持终端类型，1:电脑网页、2:手机网页、3:电脑/手机网页
+     */
+    private Integer ingress;
+    /**
+     * 跳转链接
+     */
+    private String gameCode;
+    /**
+     * 供应商
      */
     private String provider;
 }

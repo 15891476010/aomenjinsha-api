@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * 游戏列视图对象
  *
  * @author MrZhang
- * @since 2025-05-18 19:33
+ * @since 2025-06-18 18:13
  */
 @Getter
 @Setter
@@ -34,19 +34,26 @@ public class GameCategoryDataVO implements Serializable {
     private Integer sort;
     @Schema(description = "状态")
     private Boolean status;
-    @Schema(description = "跳转链接")
-    private String targetUrl;
     @Schema(description = "创建时间")
     private LocalDateTime createTime;
     @Schema(description = "更新时间")
     private LocalDateTime updateTime;
-    @Schema(description = "是否删除")
-    private Boolean isDeleted;
     @Schema(description = "描述标签")
     private String tag;
+    @Schema(description = "是否热门")
     private Boolean isHot;
-    /**
-     * 供应商id
-     */
+    @Schema(description = "游戏平台")
+    private String platType;
+    @Schema(description = "简体中文")
+    private String zhHans;
+    @Schema(description = "繁体中文")
+    private String zhHant;
+    @Schema(description = "英语")
+    private String en;
+    @Schema(description = "支持终端类型，1:电脑网页、2:手机网页、3:电脑/手机网页")
+    private Integer ingress;
+    @Schema(description = "跳转链接")
+    private String gameCode;
+    @Schema(description = "供应商")
     private String provider;
 }

@@ -4,12 +4,14 @@ import com.youlai.boot.common.base.BasePageQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 游戏列分页查询对象
  *
  * @author MrZhang
- * @since 2025-05-18 19:33
+ * @since 2025-06-18 18:13
  */
 @Schema(description ="游戏列查询对象")
 @Getter
@@ -24,9 +26,8 @@ public class GameCategoryDataQuery extends BasePageQuery {
     private Boolean status;
     @Schema(description = "描述标签")
     private String tag;
+    @Schema(description = "是否热门")
     private Boolean isHot;
-    /**
-     * 供应商id
-     */
+    @Schema(description = "供应商")
     private String provider;
 }

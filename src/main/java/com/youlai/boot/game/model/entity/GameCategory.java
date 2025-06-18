@@ -41,4 +41,8 @@ public class GameCategory extends BaseEntity {
      * 显示状态
      */
     private Boolean status;
+    /**
+     * 游戏类型
+     */
+    private String gameType;
 }

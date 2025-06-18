@@ -32,6 +32,8 @@ public class GameCategoryResultVO implements Serializable {
     private String icon;
     @Schema(description = "未选中时游戏分类图标")
     private String noIcon;
+    @Schema(description = "游戏类型")
+    private String gameType;
     @Schema(description = "游戏列表数据")
     private List<GameCategoryDataVO> gameCategoryData;
     @Schema(description = "游戏平台数据")

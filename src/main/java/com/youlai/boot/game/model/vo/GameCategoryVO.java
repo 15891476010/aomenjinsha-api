@@ -37,4 +37,6 @@ public class GameCategoryVO implements Serializable {
     @Schema(description = "显示状态")
     private Boolean status;
     private Integer sort;
+    @Schema(description = "游戏类型")
+    private String gameType;
 }

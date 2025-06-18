@@ -3,8 +3,16 @@ package com.youlai.boot.game.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.youlai.boot.common.base.CommonPage;
+import com.youlai.boot.common.constant.SysGroupConstants;
+import com.youlai.boot.game.mapper.GameCategoryMapper;
+import com.youlai.boot.game.model.entity.GameCategory;
+import com.youlai.boot.game.model.entity.GameCategoryData;
+import com.youlai.boot.game.service.GameCategoryDataService;
+import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.service.NewNgApiService;
+import com.youlai.boot.system.service.SysGroupDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -18,9 +26,7 @@ import com.youlai.boot.game.model.query.GamePlatTypeQuery;
 import com.youlai.boot.game.model.vo.GamePlatTypeVO;
 import com.youlai.boot.game.converter.GamePlatTypeConverter;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.lang.Assert;
@@ -38,6 +44,9 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
 
     private final GamePlatTypeConverter gamePlatTypeConverter;
     private final NewNgApiService newNgApiService;
+    private final GameCategoryDataService gameCategoryDataService;
+    private final GameCategoryMapper gameCategoryMapper;
+    private final SysGroupDataService sysGroupDataService;
 
     /**
      * 获取游戏平台列表分页列表
@@ -127,7 +136,74 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
 
     @Override
     public Map<String, Object> getGamePlatType(String platType) {
-        return newNgApiService.gamecode(platType);
+        Map<String, Object> response = newNgApiService.gamecode(platType);
+        // 2. 解析响应数据
+        if (response == null || (Integer) response.get("code") != 10000) {
+            return new HashMap<String, Object>();
+        }
+
+        List<Map<String, Object>> gameList = (List<Map<String, Object>>) response.get("data");
+        if (CollectionUtils.isEmpty(gameList)) {
+            return new HashMap<String, Object>();
+        }
+
+        // 查询游戏分类列表
+        List<GameCategory> gameCategoryList = gameCategoryMapper.selectList(new LambdaQueryWrapper<>());
+
+        List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_ADMIN_PROVIDER_LIST);
+
+        // 3. 转换为实体列表
+        List<GameCategoryData> entities = new ArrayList<>();
+        listMapByGid.forEach(map -> {
+            if (map.get("provider").toString().contains("NG")) {
+                for (Map<String, Object> game : gameList) {
+                    String currentPlatType = (String) game.get("platType");
+                    String currentGameCode = (String) game.get("gameCode");
+
+                    // 根据platType和gameCode查询是否已存在记录
+                    LambdaQueryWrapper<GameCategoryData> queryWrapper = new LambdaQueryWrapper<>();
+                    queryWrapper.eq(GameCategoryData::getPlatType, currentPlatType)
+                            .eq(GameCategoryData::getGameCode, currentGameCode);
+                    GameCategoryData existingEntity = gameCategoryDataService.getOne(queryWrapper);
+
+                    // 如果记录已存在，则更新；否则新建
+                    GameCategoryData entity = existingEntity != null ? existingEntity : new GameCategoryData();
+
+                    // 设置平台类型
+                    entity.setPlatType(currentPlatType);
+                    entity.setTag(currentPlatType.toUpperCase());
+                    entity.setGameCode(currentGameCode);
+                    entity.setIngress(Integer.parseInt((String) game.get("ingress")));
+
+                    // 设置多语言名称
+                    Map<String, String> nameMap = (Map<String, String>) game.get("gameName");
+                    if (nameMap != null) {
+                        if (ObjectUtil.isNotEmpty(nameMap.get("zh-hans"))) {
+                            entity.setTitle(nameMap.get("zh-hans"));
+                        }
+                        if (ObjectUtil.isNotEmpty(nameMap.get("en"))) {
+                            entity.setEn(nameMap.get("en"));
+                        }
+                        if (ObjectUtil.isNotEmpty(nameMap.get("zh-hant"))) {
+                            entity.setZhHant(nameMap.get("zh-hant"));
+                        }
+                    }
+
+                    gameCategoryList.forEach(gameCategory -> {
+                        if (gameCategory.getGameType().equals(game.get("gameType"))) {
+                            entity.setPid(Math.toIntExact(gameCategory.getId()));
+                        }
+                    });
+
+                    entity.setProvider(map.get("MerchantID").toString());
+                    entities.add(entity);
+                }
+            }
+        });
+
+        // 批量保存或更新
+        gameCategoryDataService.saveOrUpdateBatch(entities);
+        return null;
     }
 
 }

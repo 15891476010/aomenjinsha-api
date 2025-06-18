@@ -48,4 +48,7 @@ public class GameCategoryForm implements Serializable {
     private Boolean status;
 
     private Integer sort;
+
+    @Schema(description = "游戏类型")
+    private String gameType;
 }
