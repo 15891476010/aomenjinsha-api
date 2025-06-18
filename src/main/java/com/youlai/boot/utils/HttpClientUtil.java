@@ -1,6 +1,7 @@
 package com.youlai.boot.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import okhttp3.MediaType;
 import org.springframework.http.*;
 import okhttp3.*;
@@ -9,6 +10,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.util.MultiValueMap;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,8 +54,7 @@ public class HttpClientUtil {
             // 4. 构建请求对象并添加headers
             Request.Builder requestBuilder = new Request.Builder()
                     .url(url)
-                    .post(requestBody)
-                    .addHeader("Accept", "application/json");
+                    .post(requestBody);
 
             // 添加从_headers提取的请求头
             headers.forEach((key, value) -> {
@@ -77,21 +78,7 @@ public class HttpClientUtil {
                 // 将 JSON 响应转换为 Map
                 Map<String, Object> responseMap = JSON.parseObject(responseBody, Map.class);
 
-                // 提取 data 字段的内容
-                if (responseMap != null && responseMap.containsKey("data")) {
-                    Object data = responseMap.get("data");
-                    if (data instanceof Map) {
-                        return (Map<String, Object>) data;
-                    } else {
-                        // 如果 data 不是 Map 类型，可以抛异常或返回包含 data 的 Map
-                        Map<String, Object> result = new HashMap<>();
-                        result.put("data", data);
-                        return result;
-                    }
-                } else {
-                    // 如果没有 data 字段，返回整个响应
-                    return responseMap;
-                }
+                return responseMap;
             }
         } catch (IOException e) {
             System.err.println("!!! 请求失败: " + e.getMessage());
@@ -99,40 +86,38 @@ public class HttpClientUtil {
         }
     }
 
-    public static Map<String, Object> postWithHeaders(String url,
-                                                      String requestBody,
-                                                      Map<String, String> headers) throws IOException {
+    public static Map<String, Object> postRawJsonLikeCurl(String url,
+                                                          String rawJson,
+                                                          Map<String, String> headers) throws IOException {
+        OkHttpClient client = new OkHttpClient();
 
-        try {
-            // 1. 创建RequestBody
-            RequestBody body = RequestBody.create(
-                    requestBody,
-                    MediaType.parse("application/json; charset=utf-8")
-            );
+        RequestBody body = RequestBody.create(
+                rawJson.getBytes(StandardCharsets.UTF_8),
+                MediaType.parse("application/json")  // 不要加 charset=UTF-8
+        );
 
-            // 2. 构建请求
-            Request.Builder builder = new Request.Builder()
-                    .url(url)
-                    .post(body);
+        Request.Builder builder = new Request.Builder()
+                .url(url)
+                .post(body);
 
-            // 3. 添加所有请求头
-            headers.forEach((key, value) -> {
-                builder.addHeader(key, value);
-            });
+        // ✅ 严格添加 header（不多不少）
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.addHeader(entry.getKey(), entry.getValue());
+        }
 
-            Request request = builder.build();
+        // ❌ 不要加 Accept 头，和 curl 一样
+        builder.removeHeader("Accept");
 
-            // 4. 发送请求
-            try (Response response = client.newCall(request).execute()) {
-                String responseBody = response.body().string();
-                System.out.println("<<< 响应内容:\n" + responseBody);
-                return JSON.parseObject(responseBody, Map.class);
-            }
-        } catch (IOException e) {
-            System.err.println("请求失败: " + e.getMessage());
-            throw e;
+        Request request = builder.build();
+
+        System.out.println(">>> 请求 URL: " + url);
+        System.out.println(">>> 请求体: " + rawJson);
+        headers.forEach((k, v) -> System.out.println(k + ": " + v));
+
+        try (Response response = client.newCall(request).execute()) {
+            String responseBody = response.body().string();
+            System.out.println("<<< 响应:\n" + responseBody);
+            return JSON.parseObject(responseBody, Map.class);
         }
     }
-
-
 } 

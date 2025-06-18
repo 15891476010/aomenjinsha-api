@@ -1,5 +1,6 @@
 package com.youlai.boot.service;
 
+import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.service.model.GameParams;
@@ -9,11 +10,14 @@ import com.youlai.boot.utils.MD5Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.LinkedHashMap;
 
 /**
  * NGAPI Java实现
@@ -184,6 +188,18 @@ public class NewNgApiService {
         
         return sendRequest(gamerealtimerecordsUrl, data);
     }
+
+    /**
+     * 查询商户平台额度
+     *
+     * @return 商户平台额度
+     */
+    public Map<String, Object> quota() {
+        initializeApiSettings();
+        Map<String, Object> data = new HashMap<>();
+
+        return sendRequest(getmerchantBalanceUrl, data);
+    }
     
     /**
      * 获取游戏代码
@@ -199,18 +215,6 @@ public class NewNgApiService {
     }
     
     /**
-     * 查询商户平台额度
-     * 
-     * @return 商户平台额度
-     */
-    public Map<String, Object> quota() {
-        initializeApiSettings();
-        Map<String, Object> data = new HashMap<>();
-        
-        return sendRequest(getmerchantBalanceUrl, data);
-    }
-    
-    /**
      * 发送HTTP请求
      * 
      * @param url 请求URL
@@ -220,68 +224,28 @@ public class NewNgApiService {
     private Map<String, Object> sendRequest(String url, Map<String, Object> data) {
         try {
             refreshRandomAndSign();
-        
-            // 详细的调试信息
-            System.out.println("=== NG API 详细调试信息 ===");
-            System.out.println("配置信息:");
-            System.out.println("  - sn (商户前缀): " + (sn != null ? sn : "[NULL]"));
-            System.out.println("  - secretKey: " + (secretKey != null ? "[已设置,长度:" + secretKey.length() + "]" : "[NULL]"));
-            System.out.println("  - apiUrl: " + (apiUrl != null ? apiUrl : "[NULL]"));
-            System.out.println("签名计算:");
-            System.out.println("  - random: " + (random != null ? random : "[NULL]"));
-            System.out.println("  - 签名原文: " + (random != null && sn != null && secretKey != null ? 
-                (random + sn + secretKey) : "[缺少参数]"));
-            System.out.println("  - sign (MD5): " + (sign != null ? sign : "[NULL]"));
 
-            // 验证必要参数
-            if (sn == null || sn.trim().isEmpty()) {
-                throw new RuntimeException("sn (商户前缀) 未设置或为空");
-            }
-            if (secretKey == null || secretKey.trim().isEmpty()) {
-                throw new RuntimeException("secretKey (商户密钥) 未设置或为空");
-            }
-            if (random == null || random.trim().isEmpty()) {
-                throw new RuntimeException("random (随机字符串) 生成失败");
-            }
-            if (sign == null || sign.trim().isEmpty()) {
-                throw new RuntimeException("sign (签名) 生成失败");
-            }
-
-            // 构建请求头 - 按照PHP示例的格式：'key:value'
-            Map<String, String> headers = new HashMap<>();
-            headers.put("sn", sn);
-            headers.put("sign", sign);
-            headers.put("random", random);
+            // 构造请求头（严格对齐 curl）
+            Map<String, String> headers = new LinkedHashMap<>();
+            headers.put("sn", sn.trim());
+            headers.put("sign", sign.trim());
+            headers.put("random", random.trim());
             headers.put("Content-Type", "application/json");
+            headers.put("User-Agent", "Apifox/1.0.0 (https://apifox.com)");
 
-            // 构建请求体
-            String requestBody = data.isEmpty() ? "{}" : objectMapper.writeValueAsString(data);
+            // 使用原始 JSON 字符串（完全模拟 curl）
+            String rawJson = buildRawJson(data);
 
-            // 打印完整请求信息
-            System.out.println("请求信息:");
-            System.out.println("  - URL: " + url);
-            System.out.println("  - Method: POST");
-            System.out.println("  - Headers: " + headers);
-            System.out.println("  - Body: " + requestBody);
-            System.out.println("  - Body Length: " + requestBody.length());
-            System.out.println("=== 开始发送请求 ===");
-
-            // 发送请求并获取响应
-            Map<String, Object> response = HttpClientUtil.postWithHeaders(url, requestBody, headers);
-            
-            System.out.println("=== 请求完成 ===");
-            System.out.println("响应结果: " + response);
-            
-            return response;
+            return HttpClientUtil.postRawJsonLikeCurl(url, rawJson, headers);
         } catch (Exception e) {
-            System.err.println("=== API请求异常 ===");
-            System.err.println("异常类型: " + e.getClass().getSimpleName());
-            System.err.println("异常信息: " + e.getMessage());
-            e.printStackTrace();
             throw new RuntimeException("API请求失败: " + e.getMessage(), e);
         }
     }
-    
+
+    private String buildRawJson(Map<String, Object> data) {
+        // ✅ 使用 fastjson 构造标准紧凑 JSON 字符串
+        return JSON.toJSONString(data, SerializerFeature.WriteMapNullValue);
+    }
     /**
      * 生成指定长度的随机字符串
      * 
