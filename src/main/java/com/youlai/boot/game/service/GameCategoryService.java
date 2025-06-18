@@ -5,6 +5,7 @@ import com.youlai.boot.common.base.BasePageQuery;
 import com.youlai.boot.game.model.entity.GameCategory;
 import com.youlai.boot.game.model.form.GameCategoryForm;
 import com.youlai.boot.game.model.query.GameCategoryQuery;
+import com.youlai.boot.game.model.vo.GameCategoryFrontVO;
 import com.youlai.boot.game.model.vo.GameCategoryResultVO;
 import com.youlai.boot.game.model.vo.GameCategoryVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -70,4 +71,8 @@ public interface GameCategoryService extends IService<GameCategory> {
      */
     List<Map<String, Object>> getOptions();
 
+    /**
+     * 前端根据id获取当前分类
+     */
+    GameCategoryFrontVO getGameCategoryById(Long id);
 }

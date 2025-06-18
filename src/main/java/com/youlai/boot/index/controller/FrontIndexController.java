@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.common.annotation.AesEncrypt;
 import com.youlai.boot.common.result.PageResult;
 import com.youlai.boot.common.result.Result;
+import com.youlai.boot.game.model.entity.GameCategory;
+import com.youlai.boot.game.model.vo.GameCategoryFrontVO;
 import com.youlai.boot.game.model.vo.GameCategoryResultVO;
 import com.youlai.boot.game.service.GameCategoryService;
+import com.youlai.boot.game.service.GamePlatTypeService;
 import com.youlai.boot.index.model.FrontIndexResultVo;
 import com.youlai.boot.index.model.PageQuerys;
 import com.youlai.boot.index.model.form.ActiviteForm;
@@ -41,6 +44,7 @@ public class FrontIndexController {
     private RechargeCategoryService rechargeCategoryService;
     private final ActivityTypeService activityTypeService;
     private final ActiviteService activiteService;
+    private final GamePlatTypeService gamePlatTypeService;
 
     @Operation(summary = "全局配置请求")
     @GetMapping("/index")
@@ -88,5 +92,12 @@ public class FrontIndexController {
     public Result<ActiviteForm> getActiviteForm(@PathVariable Long id) {
         ActiviteForm formData = activiteService.getActiviteFormData(id);
         return Result.success(formData);
+    }
+
+    @Operation(summary = "前端根据id获取游戏平台")
+    @PostMapping("/getGameCategoryById")
+    @AesEncrypt
+    public Result<GameCategoryFrontVO> getGameCategoryById(@RequestBody Long id) {
+        return Result.success(gameCategoryService.getGameCategoryById(id));
     }
 }

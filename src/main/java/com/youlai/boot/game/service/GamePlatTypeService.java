@@ -3,10 +3,12 @@ package com.youlai.boot.game.service;
 import com.youlai.boot.game.model.entity.GamePlatType;
 import com.youlai.boot.game.model.form.GamePlatTypeForm;
 import com.youlai.boot.game.model.query.GamePlatTypeQuery;
+import com.youlai.boot.game.model.vo.GamePlatTypeFrontVO;
 import com.youlai.boot.game.model.vo.GamePlatTypeVO;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,4 +63,9 @@ public interface GamePlatTypeService extends IService<GamePlatType> {
      * 获取游戏代码
      */
     Map<String, Object> getGamePlatType(String platType);
+
+    /**
+     * 前端根据分类id获取游戏平台
+     */
+    List<GamePlatTypeFrontVO> getGamePlatTypeList(Long id);
 }

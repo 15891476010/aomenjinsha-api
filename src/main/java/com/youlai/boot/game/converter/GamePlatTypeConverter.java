@@ -1,5 +1,6 @@
 package com.youlai.boot.game.converter;
 
+import com.youlai.boot.game.model.vo.GamePlatTypeFrontVO;
 import org.mapstruct.Mapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.game.model.entity.GamePlatType;
@@ -22,4 +23,6 @@ public interface GamePlatTypeConverter{
     GamePlatType toEntity(GamePlatTypeForm formData);
 
     List<GamePlatTypeVO> toListEntity(List<GamePlatType> entitys);
+
+    List<GamePlatTypeFrontVO> toFrontListEntity(List<GamePlatType> entitys);
 }

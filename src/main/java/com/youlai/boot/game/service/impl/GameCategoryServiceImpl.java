@@ -9,6 +9,7 @@ import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.model.entity.GamePlatType;
 import com.youlai.boot.game.model.query.GameCategoryDataQuery;
 import com.youlai.boot.game.model.vo.GameCategoryDataVO;
+import com.youlai.boot.game.model.vo.GameCategoryFrontVO;
 import com.youlai.boot.game.model.vo.GameCategoryResultVO;
 import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GamePlatTypeService;
@@ -124,34 +125,41 @@ public class GameCategoryServiceImpl extends ServiceImpl<GameCategoryMapper, Gam
 
     @Override
     public Page<GameCategoryResultVO> getGameCategoryResultList(BasePageQuery one, BasePageQuery two) {
+        // 1. 查询游戏分类页
         GameCategoryQuery gameCategoryQuery = new GameCategoryQuery();
         gameCategoryQuery.setPageNum(one.getPageNum());
         gameCategoryQuery.setPageSize(one.getPageSize());
         gameCategoryQuery.setStatus(true);
         Page<GameCategoryVO> gameCategoryPage = getGameCategoryPage(gameCategoryQuery);
 
-        List<GameCategoryResultVO> resultVoList = gameCategoryConverter.toResultVoList(gameCategoryPage.getRecords());
+        // 2. 批量预加载所有需要的数据，避免N+1查询问题
+        // 预加载热门游戏数据
+        List<GameCategoryData> hotGames = gameCategoryDataService.list(
+                new LambdaQueryWrapper<GameCategoryData>().eq(GameCategoryData::getIsHot, true)
+        );
 
-        LambdaQueryWrapper<GameCategoryData> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(GameCategoryData::getIsHot, true);
-        List<GameCategoryData> objects = gameCategoryDataService.list(wrapper);
-        LambdaQueryWrapper<GamePlatType> wrapper1 = new LambdaQueryWrapper<>();
-        for (GameCategoryResultVO gameCategoryResultVO : resultVoList) {
-            if (Objects.equals(gameCategoryResultVO.getTitle(), "热门")) {
-                gameCategoryResultVO.setGameCategoryData(gameCategoryDataConverter.toVoList(objects));
-            } else {
-                // 查询所有GamePlatType记录
-                List<GamePlatType> allGamePlatTypes = gamePlatTypeService.list(wrapper1);
+        // 预加载所有游戏平台类型数据
+        List<GamePlatType> allGamePlatTypes = gamePlatTypeService.list();
 
-                // 筛选出gameType列表包含当前categoryId的GamePlatType
-                List<GamePlatType> matchedTypes = allGamePlatTypes.stream()
-                        .filter(type -> type.getGameType() != null && type.getGameType().contains(gameCategoryResultVO.getId()))
-                        .collect(Collectors.toList());
+        // 3. 转换结果并处理数据
+        List<GameCategoryResultVO> resultVoList = gameCategoryPage.getRecords().stream()
+                .map(category -> {
+                    GameCategoryResultVO vo = gameCategoryConverter.toResultVo(category);
 
-                // 将匹配的结果设置到VO中
-                gameCategoryResultVO.setGamePlatType(matchedTypes);
-            }
-        }
+                    if ("热门".equals(category.getTitle())) {
+                        vo.setGameCategoryData(gameCategoryDataConverter.toVoList(hotGames));
+                    } else {
+                        // 使用预加载的数据进行过滤
+                        List<GamePlatType> matchedTypes = allGamePlatTypes.stream()
+                                .filter(type -> type.getGameType() != null && type.getGameType().contains(category.getId()))
+                                .collect(Collectors.toList());
+                        vo.setGamePlatType(matchedTypes);
+                    }
+
+                    return vo;
+                })
+                .collect(Collectors.toList());
+
         return CommonPage.copyPageInfo(gameCategoryPage, resultVoList);
     }
 
@@ -169,6 +177,20 @@ public class GameCategoryServiceImpl extends ServiceImpl<GameCategoryMapper, Gam
             });
         }
         return objects;
+    }
+
+    @Override
+    public GameCategoryFrontVO getGameCategoryById(Long id) {
+        GameCategory gameCategory = baseMapper.selectById(id);
+        LambdaQueryWrapper<GamePlatType> wrapper = new LambdaQueryWrapper<>();
+        // 使用MyBatis-Plus的JSON查询条件
+        wrapper.apply("JSON_CONTAINS(game_type, CAST({0} AS JSON))", gameCategory.getId());
+
+        List<GamePlatType> list = gamePlatTypeService.list(wrapper);
+
+        GameCategoryFrontVO frontVo = gameCategoryConverter.toFrontVo(gameCategory);
+        frontVo.setGamePlatTypes(list);
+        return frontVo;
     }
 
 }

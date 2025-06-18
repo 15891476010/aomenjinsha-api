@@ -1,5 +1,6 @@
 package com.youlai.boot.game.converter;
 
+import com.youlai.boot.game.model.vo.GameCategoryFrontVO;
 import com.youlai.boot.game.model.vo.GameCategoryResultVO;
 import com.youlai.boot.game.model.vo.GameCategoryVO;
 import org.mapstruct.Mapper;
@@ -23,5 +24,9 @@ public interface GameCategoryConverter{
 
     List<GameCategoryVO> toVoList (List<GameCategory> entities);
 
+    GameCategoryResultVO toResultVo(GameCategoryVO entity);
+
     List<GameCategoryResultVO> toResultVoList (List<GameCategoryVO> entities);
+
+    GameCategoryFrontVO toFrontVo(GameCategory entity);
 }

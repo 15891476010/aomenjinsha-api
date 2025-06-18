@@ -9,6 +9,7 @@ import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.game.mapper.GameCategoryMapper;
 import com.youlai.boot.game.model.entity.GameCategory;
 import com.youlai.boot.game.model.entity.GameCategoryData;
+import com.youlai.boot.game.model.vo.GamePlatTypeFrontVO;
 import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.service.NewNgApiService;
@@ -204,6 +205,25 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
         // 批量保存或更新
         gameCategoryDataService.saveOrUpdateBatch(entities);
         return null;
+    }
+
+    @Override
+    public List<GamePlatTypeFrontVO> getGamePlatTypeList(Long id) {
+        GameCategory gameCategory = gameCategoryMapper.selectById(id);
+        if (gameCategory == null) {
+            return Collections.emptyList();
+        }
+
+        LambdaQueryWrapper<GamePlatType> wrapper = new LambdaQueryWrapper<>();
+        // 使用MyBatis-Plus的JSON查询条件
+        wrapper.apply("JSON_CONTAINS(game_type, CAST({0} AS JSON))", gameCategory.getId());
+
+        List<GamePlatType> gamePlatTypes = baseMapper.selectList(wrapper);
+        List<GamePlatTypeFrontVO> frontListEntity = gamePlatTypeConverter.toFrontListEntity(gamePlatTypes);
+        frontListEntity.forEach(front -> {
+            front.setCategoryName(gameCategory.getTitle());
+        });
+        return frontListEntity;
     }
 
 }
