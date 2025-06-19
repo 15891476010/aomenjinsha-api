@@ -3,6 +3,7 @@ package com.youlai.boot.game.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.model.form.GameCategoryDataForm;
+import com.youlai.boot.game.model.query.GameCategoryDataFrontQuery;
 import com.youlai.boot.game.model.query.GameCategoryDataQuery;
 import com.youlai.boot.game.model.vo.GameCategoryDataVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -54,5 +55,10 @@ public interface GameCategoryDataService extends IService<GameCategoryData> {
      * @return 是否删除成功
      */
     boolean deleteGameCategoryDatas(String ids);
+
+    /**
+     * 根据平台类型分页获取游戏
+     */
+    Page<GameCategoryDataVO> getGameCategoryDataPageByPlatType(GameCategoryDataFrontQuery queryParams);
 
 }

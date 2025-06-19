@@ -73,4 +73,8 @@ public class GamePlatType extends BaseEntity {
      * 排序
      */
     private Integer sort;
+    /**
+     * 小图标
+     */
+    private String smallIcon;
 }

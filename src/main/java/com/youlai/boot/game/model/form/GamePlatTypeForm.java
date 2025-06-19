@@ -75,5 +75,7 @@ public class GamePlatTypeForm implements Serializable {
     @Schema(description = "排序")
     private Integer sort;
 
+    @Schema(description = "平台图标")
+    private String smallIcon;
 
 }

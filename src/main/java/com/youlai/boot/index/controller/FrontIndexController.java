@@ -6,8 +6,11 @@ import com.youlai.boot.common.annotation.AesEncrypt;
 import com.youlai.boot.common.result.PageResult;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.game.model.entity.GameCategory;
+import com.youlai.boot.game.model.query.GameCategoryDataFrontQuery;
+import com.youlai.boot.game.model.vo.GameCategoryDataVO;
 import com.youlai.boot.game.model.vo.GameCategoryFrontVO;
 import com.youlai.boot.game.model.vo.GameCategoryResultVO;
+import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.game.service.GamePlatTypeService;
 import com.youlai.boot.index.model.FrontIndexResultVo;
@@ -45,6 +48,8 @@ public class FrontIndexController {
     private final ActivityTypeService activityTypeService;
     private final ActiviteService activiteService;
     private final GamePlatTypeService gamePlatTypeService;
+    @Autowired
+    private GameCategoryDataService gameCategoryDataService;
 
     @Operation(summary = "全局配置请求")
     @GetMapping("/index")
@@ -100,4 +105,12 @@ public class FrontIndexController {
     public Result<GameCategoryFrontVO> getGameCategoryById(@RequestBody Long id) {
         return Result.success(gameCategoryService.getGameCategoryById(id));
     }
+
+    @Operation(summary = "前端根据平台类型获取游戏列表")
+    @PostMapping("/getGamePlatTypeList")
+    @AesEncrypt
+    public Result<Page<GameCategoryDataVO>> getGamePlatTypeList(@RequestBody GameCategoryDataFrontQuery queryParams) {
+        return Result.success(gameCategoryDataService.getGameCategoryDataPageByPlatType(queryParams));
+    }
+
 }

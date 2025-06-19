@@ -3,6 +3,7 @@ package com.youlai.boot.game.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.CommonPage;
+import com.youlai.boot.game.model.query.GameCategoryDataFrontQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -113,6 +114,23 @@ public class GameCategoryDataServiceImpl extends ServiceImpl<GameCategoryDataMap
                 .map(Long::parseLong)
                 .toList();
         return this.removeByIds(idList);
+    }
+
+    @Override
+    public Page<GameCategoryDataVO> getGameCategoryDataPageByPlatType(GameCategoryDataFrontQuery queryParams) {
+        LambdaQueryWrapper<GameCategoryData> wrapper = new LambdaQueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(queryParams.getTitle())) {
+            wrapper.like(GameCategoryData::getTitle, queryParams.getTitle());
+        }
+        wrapper.eq(GameCategoryData::getPid, queryParams.getCategoryId());
+        if (ObjectUtil.isNotEmpty(queryParams.getPlatType())) {
+            wrapper.eq(GameCategoryData::getPlatType, queryParams.getPlatType());
+        }
+        wrapper.orderByAsc(GameCategoryData::getSort);
+        Page<GameCategoryData> page = new Page<>(queryParams.getPageNum(), queryParams.getPageSize());
+        Page<GameCategoryData> pageVO = baseMapper.selectPage(page, wrapper);
+        List<GameCategoryDataVO> voList = gameCategoryDataConverter.toVoList(pageVO.getRecords());
+        return CommonPage.copyPageInfo(pageVO, voList);
     }
 
 }
