@@ -126,6 +126,7 @@ public class GameCategoryDataServiceImpl extends ServiceImpl<GameCategoryDataMap
         if (ObjectUtil.isNotEmpty(queryParams.getPlatType())) {
             wrapper.eq(GameCategoryData::getPlatType, queryParams.getPlatType());
         }
+        wrapper.eq(GameCategoryData::getStatus, true);
         wrapper.orderByAsc(GameCategoryData::getSort);
         Page<GameCategoryData> page = new Page<>(queryParams.getPageNum(), queryParams.getPageSize());
         Page<GameCategoryData> pageVO = baseMapper.selectPage(page, wrapper);
