@@ -151,7 +151,7 @@ public class GameCategoryServiceImpl extends ServiceImpl<GameCategoryMapper, Gam
                     } else {
                         // 使用预加载的数据进行过滤
                         List<GamePlatType> matchedTypes = allGamePlatTypes.stream()
-                                .filter(type -> type.getGameType() != null && type.getGameType().contains(category.getId()))
+                                .filter(type -> type.getGameType() != null && type.getGameType().equals(category.getId()))
                                 .collect(Collectors.toList());
                         vo.setGamePlatType(matchedTypes);
                     }
@@ -183,11 +183,9 @@ public class GameCategoryServiceImpl extends ServiceImpl<GameCategoryMapper, Gam
     public GameCategoryFrontVO getGameCategoryById(Long id) {
         GameCategory gameCategory = baseMapper.selectById(id);
         LambdaQueryWrapper<GamePlatType> wrapper = new LambdaQueryWrapper<>();
-        // 使用MyBatis-Plus的JSON查询条件
-        wrapper.apply("JSON_CONTAINS(game_type, CAST({0} AS JSON))", gameCategory.getId());
-
+        wrapper.eq(GamePlatType::getGameType, gameCategory.getId());
+        wrapper.orderByAsc(GamePlatType::getSort);
         List<GamePlatType> list = gamePlatTypeService.list(wrapper);
-
         GameCategoryFrontVO frontVo = gameCategoryConverter.toFrontVo(gameCategory);
         frontVo.setGamePlatTypes(list);
         return frontVo;

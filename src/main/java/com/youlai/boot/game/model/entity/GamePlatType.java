@@ -40,7 +40,7 @@ public class GamePlatType extends BaseEntity {
      * 支持的游戏类型
      */
     @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<Integer> gameType;
+    private Integer gameType;
     /**
      * 游戏代码
      */

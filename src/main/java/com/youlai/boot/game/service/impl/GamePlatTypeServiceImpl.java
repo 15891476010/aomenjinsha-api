@@ -215,8 +215,8 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
         }
 
         LambdaQueryWrapper<GamePlatType> wrapper = new LambdaQueryWrapper<>();
-        // 使用MyBatis-Plus的JSON查询条件
-        wrapper.apply("JSON_CONTAINS(game_type, CAST({0} AS JSON))", gameCategory.getId());
+        wrapper.eq(GamePlatType::getGameType, gameCategory.getId());
+        wrapper.orderByAsc(GamePlatType::getSort);
 
         List<GamePlatType> gamePlatTypes = baseMapper.selectList(wrapper);
         List<GamePlatTypeFrontVO> frontListEntity = gamePlatTypeConverter.toFrontListEntity(gamePlatTypes);

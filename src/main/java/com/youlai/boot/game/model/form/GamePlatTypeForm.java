@@ -47,7 +47,7 @@ public class GamePlatTypeForm implements Serializable {
 
     @Schema(description = "支持的游戏类型")
     @NotEmpty(message = "支持的游戏类型不能为空")
-    private List<Integer> gameType;
+    private Integer gameType;
 
     @Schema(description = "游戏代码")
     @Size(max=255, message="游戏代码长度不能超过255个字符")

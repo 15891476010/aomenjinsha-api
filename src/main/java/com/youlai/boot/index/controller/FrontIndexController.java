@@ -10,6 +10,7 @@ import com.youlai.boot.game.model.query.GameCategoryDataFrontQuery;
 import com.youlai.boot.game.model.vo.GameCategoryDataVO;
 import com.youlai.boot.game.model.vo.GameCategoryFrontVO;
 import com.youlai.boot.game.model.vo.GameCategoryResultVO;
+import com.youlai.boot.game.model.vo.GamePlatTypeFrontVO;
 import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.game.service.GamePlatTypeService;
@@ -111,6 +112,14 @@ public class FrontIndexController {
     @AesEncrypt
     public Result<Page<GameCategoryDataVO>> getGamePlatTypeList(@RequestBody GameCategoryDataFrontQuery queryParams) {
         return Result.success(gameCategoryDataService.getGameCategoryDataPageByPlatType(queryParams));
+    }
+
+    @Operation(summary = "获取游戏平台列表")
+    @PostMapping("/getGamePlatTypeByCaId")
+    @AesEncrypt
+    public Result<List<GamePlatTypeFrontVO>> getGamePlatType(@RequestBody Long id) {
+        List<GamePlatTypeFrontVO> gamePlatTypeList = gamePlatTypeService.getGamePlatTypeList(id);
+        return Result.success(gamePlatTypeList);
     }
 
 }

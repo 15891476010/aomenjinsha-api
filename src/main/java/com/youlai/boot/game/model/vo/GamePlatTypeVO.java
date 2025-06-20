@@ -35,7 +35,7 @@ public class GamePlatTypeVO implements Serializable {
     @Schema(description = "支持的币种")
     private List<String> currencys;
     @Schema(description = "支持的游戏类型")
-    private List<Integer> gameType;
+    private Integer gameType;
     @Schema(description = "游戏代码")
     private String gameCode;
     @Schema(description = "游戏素材")

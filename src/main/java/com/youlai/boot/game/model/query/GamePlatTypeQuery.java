@@ -25,7 +25,7 @@ public class GamePlatTypeQuery extends BasePageQuery {
     @Schema(description = "支持的币种")
     private List<String> currencys;
     @Schema(description = "支持的游戏类型")
-    private List<Integer> gameType;
+    private Integer gameType;
     @Schema(description = "状态")
     private Boolean status;
 }

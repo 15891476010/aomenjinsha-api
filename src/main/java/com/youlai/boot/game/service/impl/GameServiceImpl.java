@@ -35,43 +35,42 @@ public class GameServiceImpl implements GameService {
     @Override
     public Map<String, Object> getGameUrl(Long id) {
         GameCategoryData byId = gameCategoryDataService.getById(id);
-        String BASE_URL = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_API_URL);
-        // 获取商户id
-        String merchant_id = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_ID);
-        // 获取语言类型
-        String language = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_LANGUAGE);
-        // 获取币种
-        String currency = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CURRENCY);
-        // 获取商户密钥
-        String merchant_secret = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_SECRET);
-        // 获取当前10位时间戳
-        int timestamp = (int) Instant.now().getEpochSecond();
-        // 获取当前玩家id
-        Long player_id = SecurityUtils.getFrontUserId();
-        String gameid = byId.getGameCode();
-        String signStr = merchant_id + player_id + currency + gameid + timestamp + merchant_secret;
-        String sign = MD5Util.md5(signStr);
-        Map<String, Object> map = new HashMap<>();
-        map.put("merchant_id", merchant_id);
-        map.put("player_id", player_id);
-        map.put("gameid", gameid);
-        map.put("currency", currency);
-        map.put("language", language);
-        map.put("timestamp", timestamp);
-        map.put("with_html", 1);
-        map.put("sign", sign);
-        try {
-            Map<String, Object> post = HttpClientUtil.post(BASE_URL + "/player/play_url", map);
-            if (post != null) {
-                String code = (String) post.get("success");
-                if (!"1".equals(code)) {
-                    throw new RuntimeException("地址获取失败");
-                }
-                return post;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        String BASE_URL = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_API_URL);
+//        // 获取商户id
+//        String merchant_id = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_ID);
+//        // 获取语言类型
+//        String language = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_LANGUAGE);
+//        // 获取币种
+//        String currency = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_CURRENCY);
+//        // 获取商户密钥
+//        String merchant_secret = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_SECRET);
+//        // 获取当前10位时间戳
+//        int timestamp = (int) Instant.now().getEpochSecond();
+//        // 获取当前玩家id
+//        Long player_id = SecurityUtils.getFrontUserId();
+//        String gameid = byId.getGameCode();
+//        String signStr = merchant_id + player_id + currency + gameid + timestamp + merchant_secret;
+//        String sign = MD5Util.md5(signStr);
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("merchant_id", merchant_id);
+//        map.put("player_id", player_id);
+//        map.put("gameid", gameid);
+//        map.put("currency", currency);
+//        map.put("language", language);
+//        map.put("timestamp", timestamp);
+//        map.put("sign", sign);
+//        try {
+//            Map<String, Object> post = HttpClientUtil.post(BASE_URL + "/player/play_url", map);
+//            if (post != null) {
+//                String code = (String) post.get("success");
+//                if (!"1".equals(code)) {
+//                    throw new RuntimeException("地址获取失败");
+//                }
+//                return post;
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         return Map.of();
     }
 
