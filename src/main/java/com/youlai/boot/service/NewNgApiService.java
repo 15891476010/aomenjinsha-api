@@ -155,18 +155,17 @@ public class NewNgApiService {
      * @param oddsType 彩票盘口，A:(默认)、B、C，仅IG彩票和SGWin彩票可选
      * @return 游戏登录地址
      */
-    public Map<String, Object> gamelogin(String username, String lang, String gameCode, String returnUrl, String ingress, String oddsType, String platType) {
+    public Map<String, Object> gamelogin(String username, String lang, String gameCode, String returnUrl, String ingress, String oddsType, String platType, String gameType) {
         initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("platType", platType);
         data.put("playerId", username);
-        data.put("gameType", GAME_TYPE_LIVE);
+        data.put("gameType", gameType);
         data.put("currency", currency);
         data.put("lang", lang);
         data.put("gameCode", gameCode);
         data.put("returnUrl", returnUrl);
         data.put("ingress", ingress != null && !ingress.isEmpty() ? ingress : "device1");
-        data.put("oddsType", oddsType);
         
         return sendRequest(gameloginUrl, data);
     }

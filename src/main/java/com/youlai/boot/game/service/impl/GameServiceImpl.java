@@ -6,7 +6,9 @@ import com.youlai.boot.common.exception.UsdtException;
 import com.youlai.boot.core.security.model.EbUserDetails;
 import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.game.model.entity.GameCategoryData;
+import com.youlai.boot.game.model.vo.GameCategoryFrontVO;
 import com.youlai.boot.game.service.GameCategoryDataService;
+import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.game.service.GameService;
 import com.youlai.boot.service.EzPgApiService;
 import com.youlai.boot.service.NewNgApiService;
@@ -31,6 +33,8 @@ public class GameServiceImpl implements GameService {
     private ConfigService configService;
     @Autowired
     private NewNgApiService newNgApiService;
+    @Autowired
+    private GameCategoryService gameCategoryService;
 
     @Override
     public Map<String, Object> getGameUrl(Long id) {
@@ -51,14 +55,15 @@ public class GameServiceImpl implements GameService {
         } else if(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_MERCHANT_ID).equals(byId.getProvider())) {
             String lang = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_LANGUAGE);
             String returnUrl = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_RETURN_URL);
-            Map<String, Object> post = newNgApiService.gamelogin(username, lang, byId.getGameCode(), returnUrl, "", "", byId.getPlatType());
+            GameCategoryFrontVO gameCategoryById = gameCategoryService.getGameCategoryById(Long.valueOf(byId.getPid()));
+            Map<String, Object> post = newNgApiService.gamelogin(username, lang, byId.getGameCode(), returnUrl, "", "", byId.getPlatType(), gameCategoryById.getGameType());
             System.out.println(post);
-            String code =(String) post.get("code");
+            String code =String.valueOf(post.get("code"));
             if (code.equals(GameResultCode.PLAYER_NOT_EXIST.getCode())) {
                 Map<String, Object> register = newNgApiService.register(username, byId.getPlatType());
                 if (register != null) {
-                    if (register.get("code").equals(GameResultCode.SUCCESS.getCode())) {
-                        System.out.println(newNgApiService.gamelogin(username, lang, byId.getGameCode(), returnUrl, "", "", byId.getPlatType()));
+                    if (String.valueOf(register.get("code")).equals(GameResultCode.SUCCESS.getCode())) {
+                        System.out.println(newNgApiService.gamelogin(username, lang, byId.getGameCode(), returnUrl, "", "", byId.getPlatType(), gameCategoryById.getGameType()));
                     } else {
                         throw new UsdtException(GameResultCode.getValue(register.get("code").toString()).getMsg());
                     }
