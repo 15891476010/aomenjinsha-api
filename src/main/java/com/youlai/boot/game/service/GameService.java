@@ -8,7 +8,7 @@ public interface GameService {
     /**
      * 获取游戏地址
      */
-    Map<String, Object> getGameUrl(Long id);
+    Map<String, Object> getGameUrl(Long id, Boolean type);
 
     /**
      * 会员注册

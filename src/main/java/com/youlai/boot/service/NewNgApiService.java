@@ -1,5 +1,6 @@
 package com.youlai.boot.service;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youlai.boot.common.constant.SysConfigConstant;
@@ -162,7 +163,9 @@ public class NewNgApiService {
         data.put("playerId", username);
         data.put("gameType", gameType);
         data.put("currency", currency);
-        data.put("gameCode", gameCode);
+        if (ObjectUtil.isNotEmpty(gameCode)) {
+            data.put("gameCode", gameCode);
+        }
         data.put("returnUrl", returnUrl);
         data.put("ingress", ingress != null && !ingress.isEmpty() ? ingress : "device1");
         
