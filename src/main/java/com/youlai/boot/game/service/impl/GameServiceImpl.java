@@ -2,21 +2,21 @@ package com.youlai.boot.game.service.impl;
 
 import com.youlai.boot.common.constant.SysConfigConstant;
 import com.youlai.boot.common.constant.SysGroupConstants;
+import com.youlai.boot.common.exception.UsdtException;
+import com.youlai.boot.core.security.model.EbUserDetails;
 import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameService;
 import com.youlai.boot.service.EzPgApiService;
 import com.youlai.boot.service.NewNgApiService;
+import com.youlai.boot.service.model.GameResultCode;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class GameServiceImpl implements GameService {
@@ -37,6 +37,8 @@ public class GameServiceImpl implements GameService {
         GameCategoryData byId = gameCategoryDataService.getById(id);
         // 获取当前玩家id
         Long player_id = SecurityUtils.getFrontUserId();
+        Optional<EbUserDetails> frontUser = SecurityUtils.getFrontUser();
+        String username = frontUser.map(EbUserDetails::getUsername).orElse(null);
         if (configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_MERCHANT_ID).equals(byId.getProvider())) {
             Map<String, Object> post = ezPgApiService.getGameUrl(player_id, byId.getGameCode());
             if (post != null) {
@@ -49,8 +51,19 @@ public class GameServiceImpl implements GameService {
         } else if(configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_MERCHANT_ID).equals(byId.getProvider())) {
             String lang = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_LANGUAGE);
             String returnUrl = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_RETURN_URL);
-            Map<String, Object> gamelogin = newNgApiService.gamelogin(player_id, lang, byId.getGameCode(), returnUrl, "", "", byId.getPlatType());
-            System.out.println(gamelogin);
+            Map<String, Object> post = newNgApiService.gamelogin(username, lang, byId.getGameCode(), returnUrl, "", "", byId.getPlatType());
+            System.out.println(post);
+            String code =(String) post.get("code");
+            if (code.equals(GameResultCode.PLAYER_NOT_EXIST.getCode())) {
+                Map<String, Object> register = newNgApiService.register(username, byId.getPlatType());
+                if (register != null) {
+                    if (register.get("code").equals(GameResultCode.SUCCESS.getCode())) {
+                        System.out.println(newNgApiService.gamelogin(username, lang, byId.getGameCode(), returnUrl, "", "", byId.getPlatType()));
+                    } else {
+                        throw new UsdtException(GameResultCode.getValue(register.get("code").toString()).getMsg());
+                    }
+                }
+            }
         }
         return Map.of();
     }
