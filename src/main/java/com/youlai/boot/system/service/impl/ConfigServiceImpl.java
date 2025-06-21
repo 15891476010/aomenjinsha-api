@@ -199,9 +199,4 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
         }
     }
 
-    @Override
-    public String getConfigByKey(String key) {
-        return "";
-    }
-
 }

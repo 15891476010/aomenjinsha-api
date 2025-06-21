@@ -65,6 +65,15 @@ public class SysConfigConstant {
     public static final String CONFIG_KEY_CURRENCY = "currency"; // 货币类型
     public static final String CONFIG_KEY_LANGUAGE  = "language"; // 语言
 
+    // newNg游戏商户配置
+    public static final String CONFIG_KEY_NEW_NG_MERCHANT_ID = "newNgMerchantId"; // 新游戏商户ID
+    public static final String CONFIG_KEY_NEW_NG_MERCHANT_SECRET = "newNgSecretKey"; // 新游戏商户密钥
+    public static final String CONFIG_KEY_NEW_NG_API_URL = "newNgApiUrl"; // 新游戏商户apiUrl
+    public static final String CONFIG_KEY_NEW_NG_CURRENCY = "newNgCurrency"; // 新游戏商户货币类型
+    public static final String CONFIG_KEY_NEW_NG_SN  = "newNgSn"; // 新游戏商户前缀
+    public static final String CONFIG_KEY_NEW_NG_RETURN_URL  = "newNgReturnUrl"; // 新游戏商户回调地址
+    public static final String CONFIG_KEY_NEW_NG_LANGUAGE  = "newNgLanguage"; // 新游戏商户语言
+
     // 商城基础配置
     public static final String CONFIG_KEY_SHOP_TITLE = "title"; // 商城标题
     public static final String CONFIG_KEY_SHOP_LOGO = "logo"; // 商城logo

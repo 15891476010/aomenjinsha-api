@@ -2,19 +2,17 @@ package com.youlai.boot.service;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.youlai.boot.common.constant.SysGroupConstants;
-import com.youlai.boot.service.model.GameParams;
+import com.youlai.boot.common.constant.SysConfigConstant;
+import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
 import com.youlai.boot.utils.HttpClientUtil;
 import com.youlai.boot.utils.MD5Util;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.LinkedHashMap;
@@ -31,6 +29,8 @@ public class NewNgApiService {
 
     @Autowired
     private SysGroupDataService sysGroupDataService;
+    @Autowired
+    private ConfigService configService;
 
     private String creatememberaccountUrl;          // 创建会员账户
     private String getbalanceUrl;                   // 查询余额
@@ -67,11 +67,10 @@ public class NewNgApiService {
      * 初始化API设置
      */
     private void initializeApiSettings() {
-        GameParams gameParams = getGameParams();
-        apiUrl = gameParams.getApiUrl();         // API接口域名
-        sn = gameParams.getMerchantPrefix();     // 注册开通后商户前缀,请登录管理后台查看
-        secretKey = gameParams.getMerchantSecret(); // 注册开通后商户密钥,请登录管理后台查看
-        currency = "CNY";                        // 货币
+        apiUrl = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_API_URL);         // API接口域名
+        sn = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_SN);     // 注册开通后商户前缀,请登录管理后台查看
+        secretKey = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_MERCHANT_SECRET); // 注册开通后商户密钥,请登录管理后台查看
+        currency = configService.getSystemConfig(SysConfigConstant.CONFIG_KEY_NEW_NG_CURRENCY);                        // 货币
         
         refreshRandomAndSign();
         
@@ -156,11 +155,11 @@ public class NewNgApiService {
      * @param oddsType 彩票盘口，A:(默认)、B、C，仅IG彩票和SGWin彩票可选
      * @return 游戏登录地址
      */
-    public Map<String, Object> gamelogin(String username, String lang, String gameCode, String returnUrl, String ingress, String oddsType, String platType) {
+    public Map<String, Object> gamelogin(Long player_id, String lang, String gameCode, String returnUrl, String ingress, String oddsType, String platType) {
         initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("platType", platType);
-        data.put("playerId", username);
+        data.put("playerId", player_id);
         data.put("gameType", GAME_TYPE_LIVE);
         data.put("currency", currency);
         data.put("lang", lang);
@@ -263,21 +262,5 @@ public class NewNgApiService {
         }
         
         return sb.toString();
-    }
-
-    private GameParams getGameParams() {
-        GameParams gameParams = new GameParams();
-        List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_ADMIN_PROVIDER_LIST);
-        listMapByGid.forEach(map -> {
-            // 检测provider字段中只要包含NG的
-            if (map.get("provider").toString().contains("NG")) {
-                gameParams.setMerchant(map.get("provider").toString());
-                gameParams.setMerchantSecret(map.get("MerchantKey").toString());
-                gameParams.setApiUrl(map.get("domain").toString());
-                gameParams.setMerchantId(map.get("MerchantID").toString());
-                gameParams.setMerchantPrefix(map.get("prefix").toString());
-            }
-        });
-        return gameParams;
     }
 }

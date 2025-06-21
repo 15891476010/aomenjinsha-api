@@ -77,9 +77,4 @@ public interface ConfigService extends IService<Config> {
      */
     void updateConfigByTemplateId(Integer templateId, Map<String, String> configMap);
 
-    /**
-     * 根据key获取配置
-     */
-    String getConfigByKey(String key);
-
 }
