@@ -162,7 +162,6 @@ public class NewNgApiService {
         data.put("playerId", username);
         data.put("gameType", gameType);
         data.put("currency", currency);
-        data.put("lang", lang);
         data.put("gameCode", gameCode);
         data.put("returnUrl", returnUrl);
         data.put("ingress", ingress != null && !ingress.isEmpty() ? ingress : "device1");
