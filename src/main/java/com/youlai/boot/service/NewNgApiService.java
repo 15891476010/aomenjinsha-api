@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youlai.boot.common.constant.SysConfigConstant;
+import com.youlai.boot.common.exception.UsdtException;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.SysGroupDataService;
 import com.youlai.boot.utils.HttpClientUtil;
@@ -84,7 +85,7 @@ public class NewNgApiService {
         gameorderUrl = apiUrl + "/api/server/recordOrder";
         gamerealtimerecordsUrl = apiUrl + "/api/server/recordAll";
         gamehistoryrecordsUrl = apiUrl + "/api/server/recordHistory";
-        conversionUrl = apiUrl + "/api/server/all-credit";
+        conversionUrl = apiUrl + "/api/server/transfer";
         conversionStatusUrl = apiUrl + "/api/server/record";
         gamecodeUrl = apiUrl + "/api/server/gameCode";
         getmerchantBalanceUrl = apiUrl + "/api/server/quota";
@@ -213,7 +214,25 @@ public class NewNgApiService {
         
         return sendRequest(gamecodeUrl, data);
     }
-    
+
+    /**
+     * 额度转换
+     */
+    public Map<String, Object> conversion(String username, String platType, String amount, String type) {
+        // 判断amount是否大于1，否则抛出异常
+        if (Double.parseDouble(amount) < 1) {
+            throw new UsdtException("金额不能小于1");
+        }
+        initializeApiSettings();
+        Map<String, Object> data = new HashMap<>();
+        data.put("platType", platType);
+        data.put("playerId", username);
+        data.put("currency", currency);
+        data.put("amount", amount);
+        data.put("type", type);
+        return sendRequest(conversionUrl, data);
+    }
+
     /**
      * 发送HTTP请求
      * 

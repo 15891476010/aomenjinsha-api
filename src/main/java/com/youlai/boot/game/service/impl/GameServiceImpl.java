@@ -20,6 +20,7 @@ import com.youlai.boot.system.service.SysGroupDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 @Service
@@ -148,6 +149,7 @@ public class GameServiceImpl implements GameService {
         }
         // 处理成功情况
         else if (GameResultCode.SUCCESS.getCode().equals(code)) {
+            playerQuotaConversion(gamePlatType.getPlatType());
             return loginResponse;
         }
         // 处理其他错误情况
@@ -173,11 +175,26 @@ public class GameServiceImpl implements GameService {
 
         // 注册成功后再尝试登录
         if (GameResultCode.SUCCESS.getCode().equals(registerCode)) {
-            return newNgApiService.gamelogin(
+            Map<String, Object> gamelogin = newNgApiService.gamelogin(
                     username, lang, gameData.getGameCode(), returnUrl, "", "",
                     gameData.getPlatType(), gameCategory.getGameType());
+            playerQuotaConversion(gameData.getPlatType());
+            return gamelogin;
         } else {
             throw new UsdtException(GameResultCode.getValue(registerResponse.get("code").toString()).getMsg());
+        }
+    }
+
+    /**
+     * 玩家额度转换的方法，在玩家掉用登录接口之后调用
+     */
+    public void playerQuotaConversion(String platType) {
+        Optional<EbUserDetails> frontUser = SecurityUtils.getFrontUser();
+        BigDecimal bigDecimal = frontUser.map(EbUserDetails::getBalance).orElse(null);
+        String username = frontUser.map(EbUserDetails::getUsername).orElse(null);
+        Map<String, Object> conversion = newNgApiService.conversion(username, platType, String.valueOf(bigDecimal), "1");
+        if(GameResultCode.SUCCESS.getCode().equals(String.valueOf(conversion.get("code")))) {
+            throw new UsdtException(GameResultCode.getValue(conversion.get("code").toString()).getMsg());
         }
     }
 
