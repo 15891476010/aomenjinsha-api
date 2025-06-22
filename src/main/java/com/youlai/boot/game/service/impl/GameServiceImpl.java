@@ -118,6 +118,7 @@ public class GameServiceImpl implements GameService {
         }
         // 处理成功情况
         else if (GameResultCode.SUCCESS.getCode().equals(code)) {
+            playerQuotaConversion(gameData.getPlatType());
             return loginResponse;
         }
         // 处理其他错误情况
@@ -193,7 +194,7 @@ public class GameServiceImpl implements GameService {
         BigDecimal bigDecimal = frontUser.map(EbUserDetails::getBalance).orElse(null);
         String username = frontUser.map(EbUserDetails::getUsername).orElse(null);
         Map<String, Object> conversion = newNgApiService.conversion(username, platType, String.valueOf(bigDecimal), "1");
-        if(GameResultCode.SUCCESS.getCode().equals(String.valueOf(conversion.get("code")))) {
+        if(!GameResultCode.SUCCESS.getCode().equals(String.valueOf(conversion.get("code")))) {
             throw new UsdtException(GameResultCode.getValue(conversion.get("code").toString()).getMsg());
         }
     }

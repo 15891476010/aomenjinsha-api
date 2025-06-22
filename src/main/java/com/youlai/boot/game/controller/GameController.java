@@ -25,9 +25,9 @@ public class GameController {
     private final GameService gameService;
 
     @Operation(summary = "获取游戏地址")
-    @PostMapping("/getUrl")
-    public Result<Map<String, Object>> getUrl(@RequestBody Long id,
-                                              @RequestBody(required = false) Boolean type) {
+    @GetMapping("/getUrl")
+    public Result<Map<String, Object>> getUrl(@RequestParam("id") Long id,
+                                              @RequestParam(required = false) Boolean type) {
         Map<String, Object> gameUrl = gameService.getGameUrl(id, type);
         return Result.success(gameUrl);
     }
