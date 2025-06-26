@@ -32,7 +32,20 @@ public enum GameResultCode implements IResultCode, Serializable {
     TOO_MANY_PARAMETERS("10406", "参数过多"),
     PLATFORM_ERROR("10407", "游戏平台错误"),
     GAME_TYPE_ERROR("10408", "游戏类型错误"),
-    TRANSFER_TYPE_ERROR("10409", "转换类型错误");
+    TRANSFER_TYPE_ERROR("10409", "转换类型错误"),
+
+    // 新增 MS 前缀错误码(中英文对照)
+    MS_SUCCESS("0", "成功"),
+    MS_UNKNOWN_ERROR("-1", "未知错误"),
+    MS_API_CODE_ERROR("10", "API编码错误"),
+    MS_MERCHANT_API_CODE_ERROR("11", "商户API编码错误"),
+    MS_MEMBER_EXIST("33", "会员已存在"),
+    MS_MEMBER_NOT_EXIST("34", "会员未注册"),
+    MS_ORDER_EXIST("35", "订单号重复"),
+    MS_INSUFFICIENT_MERCHANT_BALANCE("56", "商户额度不足"),
+    MS_MERCHANT_KEY_ERROR("999", "商户或密钥错误"),
+    MS_INTERFACE_MAINTENANCE("1000", "接口维护中"),
+    MS_IP_UNAUTHORIZED("9999", "IP未授权");
 
     private String code;
     private String msg;

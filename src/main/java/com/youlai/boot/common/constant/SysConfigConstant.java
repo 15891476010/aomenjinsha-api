@@ -59,6 +59,7 @@ public class SysConfigConstant {
     public static String DATE_TIME_TYPE_END = "end";
 
     // 游戏配置
+    public static final String CONFIG_KEY_GAME_PROVIDER = "gameProvider"; // 游戏供应商
     public static final String CONFIG_KEY_MERCHANT_ID = "merchantId"; // 商户ID
     public static final String CONFIG_KEY_MERCHANT_SECRET = "merchantSecret"; // 商户密钥
     public static final String CONFIG_KEY_API_URL = "apiUrl";
@@ -73,6 +74,11 @@ public class SysConfigConstant {
     public static final String CONFIG_KEY_NEW_NG_SN  = "newNgSn"; // 新游戏商户前缀
     public static final String CONFIG_KEY_NEW_NG_RETURN_URL  = "newNgReturnUrl"; // 新游戏商户回调地址
     public static final String CONFIG_KEY_NEW_NG_LANGUAGE  = "newNgLanguage"; // 新游戏商户语言
+
+    // 美盛游戏商户配置
+    public static final String CONFIG_KEY_MS_API_URL = "msApiUrl"; // 美盛游戏商户apiUrl
+    public static final String CONFIG_KEY_MS_MERCHANT_ID = "msAccount"; // 美盛游戏商户ID
+    public static final String CONFIG_KEY_MS_MERCHANT_SECRET = "msApiKey"; // 美盛游戏商户密钥
 
     // 商城基础配置
     public static final String CONFIG_KEY_SHOP_TITLE = "title"; // 商城标题

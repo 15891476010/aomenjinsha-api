@@ -1,12 +1,8 @@
 package com.youlai.boot.game.model.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
-import java.util.List;
-
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.youlai.boot.common.base.BaseEntity;
 
@@ -14,11 +10,11 @@ import com.youlai.boot.common.base.BaseEntity;
  * 游戏平台列表实体对象
  *
  * @author MrZhang
- * @since 2025-06-15 18:49
+ * @since 2025-06-26 21:37
  */
 @Getter
 @Setter
-@TableName(value = "game_plat_type", autoResultMap = true)
+@TableName("game_plat_type")
 public class GamePlatType extends BaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -32,37 +28,27 @@ public class GamePlatType extends BaseEntity {
      */
     private String platType;
     /**
-     * 支持的币种
+     * 游戏类型
      */
-    @TableField(typeHandler = JacksonTypeHandler.class)
-    private List<String> currencys;
-    /**
-     * 支持的游戏类型
-     */
-    @TableField(typeHandler = JacksonTypeHandler.class)
     private Integer gameType;
     /**
      * 游戏代码
      */
     private String gameCode;
     /**
-     * 游戏素材
+     * 副标题
      */
-    private String gameMaterial;
+    private String subName;
     /**
-     * 游戏素材账号
+     * 小图标
      */
-    private String materialAccount;
+    private String smallIcon;
     /**
-     * 游戏素材密码
-     */
-    private String materialPwd;
-    /**
-     * 平台图标
+     * 手机图标
      */
     private String icon;
     /**
-     * 状态(是否维修)
+     * 状态
      */
     private Boolean status;
     /**
@@ -73,8 +59,4 @@ public class GamePlatType extends BaseEntity {
      * 排序
      */
     private Integer sort;
-    /**
-     * 小图标
-     */
-    private String smallIcon;
 }

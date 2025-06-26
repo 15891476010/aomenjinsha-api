@@ -24,6 +24,8 @@ import com.youlai.boot.index.service.ActivityTypeService;
 import com.youlai.boot.index.service.IndexService;
 import com.youlai.boot.recharge.model.vo.RechargeCategoryVO;
 import com.youlai.boot.recharge.service.RechargeCategoryService;
+import com.youlai.boot.system.model.vo.DictItemOptionVO;
+import com.youlai.boot.system.service.DictItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,6 +53,7 @@ public class FrontIndexController {
     private final GamePlatTypeService gamePlatTypeService;
     @Autowired
     private GameCategoryDataService gameCategoryDataService;
+    private final DictItemService dictItemService;
 
     @Operation(summary = "全局配置请求")
     @GetMapping("/index")
@@ -120,6 +123,13 @@ public class FrontIndexController {
     public Result<List<GamePlatTypeFrontVO>> getGamePlatType(@RequestBody Long id) {
         List<GamePlatTypeFrontVO> gamePlatTypeList = gamePlatTypeService.getGamePlatTypeList(id);
         return Result.success(gamePlatTypeList);
+    }
+
+    @Operation(summary = "获取字典列表")
+    @GetMapping("/getDictItems")
+    public Result<List<DictItemOptionVO>> getDictItems(@Parameter(description = "字典编码") String dictCode) {
+        List<DictItemOptionVO> dictItems = dictItemService.getDictItems(dictCode);
+        return Result.success(dictItems);
     }
 
 }
