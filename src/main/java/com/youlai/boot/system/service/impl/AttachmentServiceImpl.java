@@ -128,7 +128,7 @@ public class AttachmentServiceImpl extends ServiceImpl<AttachmentMapper, Attachm
         if (ObjectUtil.isNotEmpty(baseMapper.selectList(wrapper))) {
             return baseMapper.selectList(wrapper).get(0).getSattDir();
         }
-        return "";
+        return null;
     }
 
 }
