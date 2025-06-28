@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.CommonPage;
 import com.youlai.boot.game.mapper.GameCategoryMapper;
 import com.youlai.boot.game.model.entity.GameCategory;
+import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.model.vo.GamePlatTypeFrontVO;
 import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameService;
@@ -141,12 +142,88 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
 
     @Override
     public Map<String, Object> getGamePlatType(String platType) {
-        Map<String, Object> gameList = msGameApiService.getGameList(platType);
-        if ((int) gameList.get("Code") == 0) {
+        // 初始化返回结果Map
+        Map<String, Object> result = new HashMap<>();
+        result.put("platType", platType);
+        result.put("added", 0);
+        result.put("updated", 0);
+        result.put("errors", 0);
+
+        try {
+            // 获取游戏列表数据
+            Map<String, Object> gameList = msGameApiService.getGameList(platType);
+
+            // 检查返回码
+            if ((int) gameList.get("Code") != 0) {
+                result.put("message", "API返回错误码: " + gameList.get("Code"));
+                return result;
+            }
+
+            // 解析数据
             Map<String, Object> data = (Map<String, Object>) gameList.get("Data");
-            System.out.println(data);
+            Map<String, Object> gamelist = (Map<String, Object>) data.get("gamelist");
+
+            // 验证必要字段
+            if (gamelist == null || gamelist.get("gameType") == null || gamelist.get("code") == null) {
+                result.put("message", "缺少必要字段");
+                return result;
+            }
+
+            // 查询游戏分类
+            GameCategory gameCategory = gameCategoryMapper.selectOne(
+                    new LambdaQueryWrapper<GameCategory>()
+                            .eq(GameCategory::getGameType, gamelist.get("gameType"))
+            );
+
+            if (gameCategory == null) {
+                result.put("message", "未找到对应的游戏分类");
+                return result;
+            }
+
+            // 构建查询条件
+            LambdaQueryWrapper<GameCategoryData> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(GameCategoryData::getGameCode, gamelist.get("code").toString());
+            wrapper.eq(GameCategoryData::getTitle, gamelist.get("name").toString());
+
+            // 先查询是否已存在记录
+            GameCategoryData existingData = gameCategoryDataService.getOne(wrapper);
+
+            // 构建/更新GameCategoryData对象
+            GameCategoryData gameCategoryData = existingData != null ? existingData : new GameCategoryData();
+            gameCategoryData.setPid(Math.toIntExact(gameCategory.getId()));
+            gameCategoryData.setTitle(gamelist.get("name").toString());
+            gameCategoryData.setIcon(gamelist.get("img").toString());
+            gameCategoryData.setGameCode(gamelist.get("gameCode").toString());
+            gameCategoryData.setZhHans(gamelist.get("name").toString());
+            gameCategoryData.setEn(gamelist.get("en_name").toString());
+            gameCategoryData.setIngress(Integer.valueOf(gamelist.get("terminal").toString()));
+            gameCategoryData.setStatus("1".equals(gamelist.get("status")));
+            gameCategoryData.setTag(gamelist.get("code").toString());
+
+            // 执行保存或更新操作
+            boolean operationResult;
+            if (existingData != null) {
+                operationResult = gameCategoryDataService.updateById(gameCategoryData);
+                result.put("updated", 1);
+                result.put("message", "记录更新成功");
+            } else {
+                operationResult = gameCategoryDataService.save(gameCategoryData);
+                result.put("added", 1);
+                result.put("message", "记录新增成功");
+            }
+
+            if (!operationResult) {
+                result.put("errors", 1);
+                result.put("message", "操作失败");
+            }
+
+        } catch (Exception e) {
+            result.put("errors", 1);
+            result.put("message", "系统异常: " + e.getMessage());
+            log.error("处理游戏平台类型异常", e);
         }
-        return null;
+
+        return result;
     }
 
     @Override
