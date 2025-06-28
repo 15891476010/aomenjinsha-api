@@ -175,12 +175,11 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
             }
 
             // 2. 预加载数据
-            // 2.1 收集所有gameType并批量查询分类
             Set<String> gameTypes = new HashSet<>();
             List<Map<String, Object>> validGames = new ArrayList<>();
             List<String> errorGames = new ArrayList<>();
 
-            // 第一遍循环：数据校验和收集gameType
+            // 数据校验和收集gameType
             for (Map<String, Object> game : rawGameList) {
                 try {
                     if (game.get("gameType") == null || game.get("code") == null ||
@@ -200,7 +199,7 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
                     new LambdaQueryWrapper<GameCategory>().in(GameCategory::getGameType, gameTypes)
             ).stream().collect(Collectors.toMap(GameCategory::getGameType, Function.identity()));
 
-            // 2.2 批量查询现有游戏数据
+            // 批量查询现有游戏数据
             List<Pair<String, String>> gameKeys = validGames.stream()
                     .map(game -> Pair.of(
                             game.get("gameCode").toString(),
@@ -225,8 +224,6 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
             // 3. 准备批量操作数据
             List<GameCategoryData> toAdd = new ArrayList<>();
             List<GameCategoryData> toUpdate = new ArrayList<>();
-            List<CompletableFuture<Void>> uploadFutures = new ArrayList<>();
-            Map<Map<String, Object>, GameCategoryData> processingMap = new HashMap<>();
 
             for (Map<String, Object> game : validGames) {
                 try {
@@ -241,63 +238,26 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
                             game.get("id").toString()
                     );
                     GameCategoryData existing = existingMap.get(gameKey);
-
-                    // 创建或更新对象
                     GameCategoryData gameData = existing != null ? existing : new GameCategoryData();
-                    processingMap.put(game, gameData);  // 临时存储用于文件上传后处理
 
-                    // 并行处理文件上传
-                    String fileName = game.get("name").toString() + game.get("gameCode").toString();
-                    CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
-                        try {
-                            String fileUrl = attachmentService.getFileUrlByFileName(fileName);
-                            if (fileUrl == null && game.get("img") != null) {
-                                FileResultVo vo = urlUploadService.urlUploadName(
-                                        game.get("img").toString(), "attachment", 7, fileName
-                                );
-                                gameData.setIcon(vo.getUrl());
-                            } else {
-                                gameData.setIcon(fileUrl);
-                            }
-                        } catch (Exception e) {
-                            throw new RuntimeException("文件上传失败: " + e.getMessage());
-                        }
-                    });
-                    uploadFutures.add(future);
+                    // 直接使用img字段作为图标URL
+                    gameData.setIcon(game.get("img") != null ?
+                            game.get("img").toString() : "");
 
-                } catch (Exception e) {
-                    errorGames.add(game.get("code") + ":" + e.getMessage());
-                }
-            }
-
-            // 等待所有文件上传完成
-            try {
-                CompletableFuture.allOf(uploadFutures.toArray(new CompletableFuture[0])).join();
-            } catch (Exception e) {
-                errorGames.add("文件上传异常: " + e.getMessage());
-            }
-
-            // 4. 构建数据对象
-            for (Map<String, Object> game : validGames) {
-                try {
-                    if (!processingMap.containsKey(game)) continue;
-
-                    GameCategoryData gameData = processingMap.get(game);
-                    GameCategory category = categoryMap.get(game.get("gameType").toString());
-
-                    // 设置基础字段
+                    // 设置其他字段
                     gameData.setPid(Math.toIntExact(category.getId()));
                     gameData.setTitle(game.get("name").toString());
                     gameData.setGameCode(game.get("gameCode").toString());
                     gameData.setZhHans(game.get("name").toString());
                     gameData.setEn(game.get("en_name") != null ? game.get("en_name").toString() : "");
-                    gameData.setIngress(game.get("terminal") != null ? Integer.parseInt(game.get("terminal").toString()) : 0);
+                    gameData.setIngress(game.get("terminal") != null ?
+                            Integer.parseInt(game.get("terminal").toString()) : 0);
                     gameData.setStatus("1".equals(game.get("status")));
                     gameData.setTag(game.get("code").toString());
                     gameData.setProvider(game.get("id").toString());
 
-                    // 添加到对应批次
-                    if (gameData.getId() != null) {
+                    // 分类到新增/更新列表
+                    if (existing != null) {
                         toUpdate.add(gameData);
                     } else {
                         toAdd.add(gameData);
@@ -307,7 +267,7 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
                 }
             }
 
-            // 5. 批量操作数据库
+            // 4. 批量操作数据库
             if (!toAdd.isEmpty()) {
                 boolean addSuccess = gameCategoryDataService.saveBatch(toAdd);
                 result.put("added", addSuccess ? toAdd.size() : 0);
@@ -320,14 +280,14 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
                 if (!updateSuccess) errorGames.add("批量更新失败");
             }
 
-            // 6. 错误处理
+            // 5. 错误处理
             int errors = errorGames.size();
             result.put("errors", errors);
             if (!errorGames.isEmpty()) {
                 result.put("errorDetails", errorGames);
             }
             result.put("message", String.format("处理完成: 新增%d/更新%d/错误%d",
-                    result.get("added"), result.get("updated"), errors));
+                    toAdd.size(), toUpdate.size(), errors));
 
         } catch (Exception e) {
             result.put("errors", result.get("total"));
