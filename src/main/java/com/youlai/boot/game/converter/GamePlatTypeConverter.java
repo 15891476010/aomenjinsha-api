@@ -22,6 +22,8 @@ public interface GamePlatTypeConverter{
 
     GamePlatType toEntity(GamePlatTypeForm formData);
 
+    GamePlatTypeVO toVO(GamePlatType entity);
+
     List<GamePlatTypeVO> toListEntity(List<GamePlatType> entitys);
 
     List<GamePlatTypeFrontVO> toFrontListEntity(List<GamePlatType> entitys);

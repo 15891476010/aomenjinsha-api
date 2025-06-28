@@ -69,3 +69,4 @@ public interface GamePlatTypeService extends IService<GamePlatType> {
      */
     List<GamePlatTypeFrontVO> getGamePlatTypeList(Long id);
 }
+

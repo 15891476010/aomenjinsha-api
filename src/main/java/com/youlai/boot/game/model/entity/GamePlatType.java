@@ -59,4 +59,8 @@ public class GamePlatType extends BaseEntity {
      * 排序
      */
     private Integer sort;
+    /**
+     * 是否显示标题
+     */
+    private Boolean isShowTitle;
 }

@@ -221,7 +221,7 @@
                           </el-select>
                         #end
                     #elseif($fieldConfig.formType == "UPLOAD_IMAGE")
-                      <ElButton type="primary" @click="handleChooseIcon">$fieldConfig.fieldName</ElButton>
+                      <ElButton type="primary" @click="handleChoose${fieldConfig.fieldName}Icon">$fieldConfig.fieldName</ElButton>
                       <el-image
                           v-if="formData.$fieldConfig.fieldName"
                           style="width: 100px; height: 100px"
@@ -295,8 +295,8 @@
   #if($fieldConfigs)
       #foreach($fieldConfig in ${fieldConfigs})
           #if($fieldConfig.formType == "UPLOAD_IMAGE")
-            <ElDialog v-model="isShowPicture" width="90vw" title="选择图标" align-center destroy-on-close>
-              <PictureCom :choose-btn="true" @choose="handleChoose" />
+            <ElDialog v-model="isShow${fieldConfig.fieldName}Picture" width="90vw" title="选择图标" align-center destroy-on-close>
+              <PictureCom :choose-btn="true" @choose="handleChoose${fieldConfig.fieldName}" />
             </ElDialog>
           #end
       #end
@@ -310,12 +310,12 @@
     inheritAttrs: false,
   });
   import { getIndexData } from "@/utils/auth";
+  import PictureCom from "@/views/maintain/picture/index.vue";
   const indexData = getIndexData();
   #if($fieldConfigs)
       #foreach($fieldConfig in ${fieldConfigs})
           #if($fieldConfig.formType == "UPLOAD_IMAGE")
-            import PictureCom from "@/views/maintain/picture/index.vue";
-            const isShowPicture = ref(false);
+            const isShow${fieldConfig.fieldName}Picture = ref(false);
           #end
       #end
   #end
@@ -461,12 +461,12 @@
   #if($fieldConfigs)
       #foreach($fieldConfig in ${fieldConfigs})
           #if($fieldConfig.formType == "UPLOAD_IMAGE")
-              function handleChooseIcon() {
-                isShowPicture.value = true;
+              function handleChoose${fieldConfig.fieldName}Icon() {
+                isShow${fieldConfig.fieldName}Picture.value = true;
               }
-              function handleChoose(data: any) {
+              function handleChoose${fieldConfig.fieldName}(data: any) {
                 formData.$fieldConfig.fieldName = data.sattDir;
-                isShowPicture.value = false;
+                isShow${fieldConfig.fieldName}Picture.value = false;
               }
           #end
       #end

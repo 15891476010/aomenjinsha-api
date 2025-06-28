@@ -72,14 +72,20 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
             wrapper.like(GamePlatType::getPlatType, queryParams.getPlatType());
         }
 
-        if (ObjectUtil.isNotEmpty(queryParams.getCurrencys())) {
-            wrapper.like(GamePlatType::getCurrencys, queryParams.getCurrencys());
+        if (ObjectUtil.isNotEmpty(queryParams.getIsShowTitle())) {
+            wrapper.eq(GamePlatType::getIsShowTitle, queryParams.getIsShowTitle());
         }
+
         if (ObjectUtil.isNotEmpty(queryParams.getGameType())) {
-            wrapper.like(GamePlatType::getGameType, queryParams.getGameType());
+            wrapper.eq(GamePlatType::getGameType, queryParams.getGameType());
         }
         Page<GamePlatType> result = baseMapper.selectPage(page, wrapper);
-        return CommonPage.copyPageInfo(result, gamePlatTypeConverter.toListEntity(result.getRecords()));
+        List<GamePlatTypeVO> listEntity = gamePlatTypeConverter.toListEntity(result.getRecords());
+        listEntity.forEach(item -> {
+            GameCategory gameCategory = gameCategoryMapper.selectById(item.getGameType());
+            item.setGameTypeHanZi(gameCategory.getTitle());
+        });
+        return CommonPage.copyPageInfo(result, listEntity);
     }
 
     /**
