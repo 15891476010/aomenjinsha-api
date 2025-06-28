@@ -68,7 +68,7 @@ public class GameServiceImpl implements GameService {
     @Override
     public String getCredit(String apiCode) {
         Map<String, Object> post = msGameApiService.getCredit(apiCode);
-        if (post.get("Code").equals(GameResultCode.MS_SUCCESS)) {
+        if ((int)post.get("Code") == 0) {
             Map<String, Object> data = (Map<String, Object>) post.get("Data");
             return (String) data.get("money");
         }
