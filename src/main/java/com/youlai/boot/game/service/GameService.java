@@ -8,7 +8,7 @@ public interface GameService {
     /**
      * 获取游戏地址
      */
-    Map<String, Object> getGameUrl(Long id, Boolean type);
+    Map<String, Object> getGameUrl(Long id);
 
     /**
      * 会员注册
@@ -19,4 +19,9 @@ public interface GameService {
      * 获取游戏提供商列表
      */
     List<Map<String, String>> getGameProviderList();
+
+    /**
+     * 获取商户 余额
+     */
+    String getCredit(String apiCode);
 }

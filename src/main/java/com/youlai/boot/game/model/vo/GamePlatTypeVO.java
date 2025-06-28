@@ -32,6 +32,8 @@ public class GamePlatTypeVO implements Serializable {
     private Integer gameType;
     @Schema(description = "游戏类型汉字")
     private String gameTypeHanZi;
+    @Schema(description = "商户额度")
+    private String merchantQuota;
     @Schema(description = "游戏代码")
     private String gameCode;
     @Schema(description = "副标题")

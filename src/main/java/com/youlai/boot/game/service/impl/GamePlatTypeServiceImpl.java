@@ -12,6 +12,7 @@ import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.model.vo.GamePlatTypeFrontVO;
 import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameCategoryService;
+import com.youlai.boot.game.service.GameService;
 import com.youlai.boot.service.NewNgApiService;
 import com.youlai.boot.system.service.SysGroupDataService;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,7 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
     private final GameCategoryDataService gameCategoryDataService;
     private final GameCategoryMapper gameCategoryMapper;
     private final SysGroupDataService sysGroupDataService;
+    private final GameService gameService;
 
     /**
      * 获取游戏平台列表分页列表
@@ -84,6 +86,8 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
         listEntity.forEach(item -> {
             GameCategory gameCategory = gameCategoryMapper.selectById(item.getGameType());
             item.setGameTypeHanZi(gameCategory.getTitle());
+            String credit = gameService.getCredit(item.getPlatType());
+            item.setMerchantQuota(credit);
         });
         return CommonPage.copyPageInfo(result, listEntity);
     }
