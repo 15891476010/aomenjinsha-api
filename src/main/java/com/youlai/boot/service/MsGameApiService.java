@@ -214,7 +214,8 @@ public class MsGameApiService {
             data.put("api_key", merchant_secret);
             return HttpClientUtil.post(url, data);
         } catch (Exception e) {
-            throw new RuntimeException("API请求失败: " + e.getMessage(), e);
+//            throw new RuntimeException("API请求失败: " + e.getMessage(), e);
+            return new HashMap<>();
         }
     }
 }

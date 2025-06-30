@@ -89,8 +89,8 @@ public class GamePlatTypeServiceImpl extends ServiceImpl<GamePlatTypeMapper, Gam
         listEntity.forEach(item -> {
             GameCategory gameCategory = gameCategoryMapper.selectById(item.getGameType());
             item.setGameTypeHanZi(gameCategory.getTitle());
-            String credit = gameService.getCredit(item.getPlatType());
-            item.setMerchantQuota(credit);
+//            String credit = gameService.getCredit(item.getPlatType());
+//            item.setMerchantQuota(credit);
         });
         return CommonPage.copyPageInfo(result, listEntity);
     }

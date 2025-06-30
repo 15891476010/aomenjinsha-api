@@ -124,7 +124,7 @@ public class GameCategoryDataServiceImpl extends ServiceImpl<GameCategoryDataMap
         }
         wrapper.eq(GameCategoryData::getPid, queryParams.getCategoryId());
         if (ObjectUtil.isNotEmpty(queryParams.getPlatType())) {
-            wrapper.eq(GameCategoryData::getPlatType, queryParams.getPlatType());
+            wrapper.eq(GameCategoryData::getTag, queryParams.getPlatType());
         }
         wrapper.eq(GameCategoryData::getStatus, true);
         wrapper.orderByAsc(GameCategoryData::getSort);
