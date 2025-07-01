@@ -5,6 +5,7 @@ import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.common.exception.UsdtException;
 import com.youlai.boot.core.security.model.EbUserDetails;
 import com.youlai.boot.core.security.util.SecurityUtils;
+import com.youlai.boot.game.model.entity.GameCategory;
 import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.model.entity.GamePlatType;
 import com.youlai.boot.game.model.vo.GameCategoryFrontVO;
@@ -12,6 +13,8 @@ import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.game.service.GamePlatTypeService;
 import com.youlai.boot.game.service.GameService;
+import com.youlai.boot.index.model.entity.EbUser;
+import com.youlai.boot.index.service.EbUserService;
 import com.youlai.boot.service.MsGameApiService;
 import com.youlai.boot.service.model.GameResultCode;
 import com.youlai.boot.system.service.ConfigService;
@@ -20,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -28,6 +32,12 @@ public class GameServiceImpl implements GameService {
     private SysGroupDataService sysGroupDataService;
     @Autowired
     private MsGameApiService msGameApiService;
+    @Autowired
+    private GameCategoryDataService gameCategoryDataService;
+    @Autowired
+    private GameCategoryService gameCategoryService;
+    @Autowired
+    private EbUserService ebUserService;
 
     @Override
     public Map<String, Object> getGameUrl(Long id) {
@@ -37,13 +47,29 @@ public class GameServiceImpl implements GameService {
         String username = frontUser.map(EbUserDetails::getUsername).orElseThrow(() ->
                 new RuntimeException("用户未登录"));
 
+        GameCategoryData byId = gameCategoryDataService.getById(id);
+        GameCategory byId1 = gameCategoryService.getById(byId.getPid());
+        Map<String, Object> gameUrl = getGameUrl(username, byId.getTag(), byId1.getGameType(), byId.getGameCode(), 1);
         // 4. 如果都不匹配，返回空Map
-        return Collections.emptyMap();
+        if ((int) gameUrl.get("code") == 34) {
+            Map<String, Object> user = memberRegister(username, byId.getTag());
+            if ((int) user.get("code") == 0) {
+                gameUrl = getGameUrl(username, byId.getTag(), byId1.getGameType(), byId.getGameCode(), 1);
+            }
+        }
+        if ((int) gameUrl.get("code") == 0) {
+            EbUser byId2 = ebUserService.getById(id);
+            Integer amount = byId2.getBalance().intValue();
+            msGameApiService.deposit(username, byId.getTag(), amount, generateOrderNo());
+        }
+        return gameUrl;
     }
 
-    @Override
-    public Map<String, Object> memberRegister(Long player_id, String player_name) {
-        return Map.of();
+    private Map<String, Object> getGameUrl(String username, String apiCode, String gameType, String gameCode, Integer isMobile) {
+        return msGameApiService.getGameUrl(username, apiCode, gameType, gameCode, isMobile);
+    }
+    private Map<String, Object> memberRegister(String player_name, String apiCode) {
+        return msGameApiService.register(player_name, "a12345678", apiCode);
     }
 
 
@@ -58,6 +84,21 @@ public class GameServiceImpl implements GameService {
             objects.add(stringStringMap);
         });
         return objects;
+    }
+
+    /**
+     * 生成转账16位订单号，时间戳+随机数字
+     */
+    private String generateOrderNo() {
+        // 获取当前时间戳，格式为 yyyyMMddHHmmss
+        String timestamp = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+
+        // 生成两位随机数字（10以内补0）
+        int randomNumber = new Random().nextInt(100); // 0 - 99
+        String randomPart = String.format("%02d", randomNumber);
+
+        // 拼接成16位订单号
+        return timestamp + randomPart;
     }
 
     /**

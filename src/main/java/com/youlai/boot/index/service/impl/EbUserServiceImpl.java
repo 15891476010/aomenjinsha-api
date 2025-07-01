@@ -160,7 +160,6 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
         if (save) {
             // 保存用户角色
              userRoleService.saveUserRoles(player_id, objects);
-             gameApiService.memberRegister(player_id, entity.getUsername());
         }
         return save;
     }

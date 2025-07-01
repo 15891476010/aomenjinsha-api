@@ -11,11 +11,6 @@ public interface GameService {
     Map<String, Object> getGameUrl(Long id);
 
     /**
-     * 会员注册
-     */
-    Map<String, Object> memberRegister(Long player_id, String player_name);
-
-    /**
      * 获取游戏提供商列表
      */
     List<Map<String, String>> getGameProviderList();
