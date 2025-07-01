@@ -5,6 +5,8 @@ import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.common.exception.UsdtException;
 import com.youlai.boot.core.security.model.EbUserDetails;
 import com.youlai.boot.core.security.util.SecurityUtils;
+import com.youlai.boot.game.mapper.GameCategoryDataMapper;
+import com.youlai.boot.game.mapper.GameCategoryMapper;
 import com.youlai.boot.game.model.entity.GameCategory;
 import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.model.entity.GamePlatType;
@@ -13,6 +15,7 @@ import com.youlai.boot.game.service.GameCategoryDataService;
 import com.youlai.boot.game.service.GameCategoryService;
 import com.youlai.boot.game.service.GamePlatTypeService;
 import com.youlai.boot.game.service.GameService;
+import com.youlai.boot.index.mapper.EbUserMapper;
 import com.youlai.boot.index.model.entity.EbUser;
 import com.youlai.boot.index.service.EbUserService;
 import com.youlai.boot.service.MsGameApiService;
@@ -33,11 +36,11 @@ public class GameServiceImpl implements GameService {
     @Autowired
     private MsGameApiService msGameApiService;
     @Autowired
-    private GameCategoryDataService gameCategoryDataService;
+    private GameCategoryDataMapper gameCategoryDataMapper;
     @Autowired
-    private GameCategoryService gameCategoryService;
+    private GameCategoryMapper gameCategoryMapper;
     @Autowired
-    private EbUserService ebUserService;
+    private EbUserMapper ebUserMapper;
 
     @Override
     public Map<String, Object> getGameUrl(Long id) {
@@ -47,8 +50,8 @@ public class GameServiceImpl implements GameService {
         String username = frontUser.map(EbUserDetails::getUsername).orElseThrow(() ->
                 new RuntimeException("用户未登录"));
 
-        GameCategoryData byId = gameCategoryDataService.getById(id);
-        GameCategory byId1 = gameCategoryService.getById(byId.getPid());
+        GameCategoryData byId = gameCategoryDataMapper.selectById(id);
+        GameCategory byId1 = gameCategoryMapper.selectById(byId.getPid());
         Map<String, Object> gameUrl = getGameUrl(username, byId.getTag(), byId1.getGameType(), byId.getGameCode(), 1);
         // 4. 如果都不匹配，返回空Map
         if ((int) gameUrl.get("code") == 34) {
@@ -58,7 +61,7 @@ public class GameServiceImpl implements GameService {
             }
         }
         if ((int) gameUrl.get("code") == 0) {
-            EbUser byId2 = ebUserService.getById(id);
+            EbUser byId2 = ebUserMapper.selectById(id);
             Integer amount = byId2.getBalance().intValue();
             msGameApiService.deposit(username, byId.getTag(), amount, generateOrderNo());
         }
