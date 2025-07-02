@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -65,6 +66,9 @@ public class GameServiceImpl implements GameService {
             Map<String, Object> result = msGameApiService.deposit(username, byId.getTag(), byId2.getBalance(), generateOrderNo());
             if ((int) result.get("Code") != 0) {
                 throw new UsdtException(result.get("Message").toString());
+            } else {
+                byId2.setBalance(new BigDecimal(0));
+                ebUserMapper.updateById(byId2);
             }
         }
         return gameUrl;
@@ -119,5 +123,34 @@ public class GameServiceImpl implements GameService {
             return (String) data.get("money");
         }
         return "0";
+    }
+
+    @Override
+    public Map<String, Object> userTransfer(String gamePlate) {
+        // 2. 获取当前玩家信息
+        Long playerId = SecurityUtils.getFrontUserId();
+        Optional<EbUserDetails> frontUser = SecurityUtils.getFrontUser();
+        String username = frontUser.map(EbUserDetails::getUsername).orElseThrow(() ->
+                new RuntimeException("用户未登录"));
+        // 先查询用户余额
+        Map<String, Object> balance = msGameApiService.getBalance(username, gamePlate);
+        if ((int) balance.get("Code") != 0) {
+            throw new UsdtException(balance.get("Message").toString());
+        } else {
+            Map<String, Object> data = (Map<String, Object>) balance.get("Data");
+            BigDecimal balanceData = new BigDecimal(data.get("balance").toString());
+            // 判断是否大于等于1，如果大于等于一，那么就向下对余额取整
+            if (balanceData.compareTo(new BigDecimal(1)) >= 0) {
+                balanceData = balanceData.setScale(0, RoundingMode.DOWN);
+                EbUser byId2 = ebUserMapper.selectById(playerId);
+                Map<String, Object> withdrawal = msGameApiService.withdrawal(username, gamePlate, balanceData.intValue(), generateOrderNo());
+                if ((int) withdrawal.get("Code") != 0) {
+                    throw new UsdtException(withdrawal.get("Message").toString());
+                }
+                byId2.setBalance(balanceData);
+                ebUserMapper.updateById(byId2);
+            }
+        }
+        return balance;
     }
 }

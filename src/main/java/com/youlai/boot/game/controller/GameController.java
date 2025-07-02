@@ -1,5 +1,6 @@
 package com.youlai.boot.game.controller;
 
+import com.youlai.boot.common.annotation.AesEncrypt;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.game.service.GameService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +27,7 @@ public class GameController {
 
     @Operation(summary = "获取游戏地址")
     @GetMapping("/getUrl")
+    @AesEncrypt
     public Result<Map<String, Object>> getUrl(@RequestParam("id") Long id) {
         Map<String, Object> gameUrl = gameService.getGameUrl(id);
         return Result.success(gameUrl);
@@ -35,5 +37,12 @@ public class GameController {
     @GetMapping("/getProviderList")
     public Result<List<Map<String, String>>> getProviderList() {
         return Result.success(gameService.getGameProviderList());
+    }
+
+    @Operation(summary = "用户余额归户")
+    @PostMapping("/userTransfer")
+    @AesEncrypt
+    public Result<Map<String, Object>> userTransfer(@RequestParam("gamePlate") String gamePlate) {
+        return Result.success(gameService.userTransfer(gamePlate));
     }
 }

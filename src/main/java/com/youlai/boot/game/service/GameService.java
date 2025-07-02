@@ -19,4 +19,8 @@ public interface GameService {
      * 获取商户 余额
      */
     String getCredit(String apiCode);
+    /**
+     * 额度转出
+     */
+    Map<String, Object> userTransfer(String gamePlate);
 }
