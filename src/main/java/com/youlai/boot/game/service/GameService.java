@@ -11,6 +11,11 @@ public interface GameService {
     Map<String, Object> getGameUrl(Long id);
 
     /**
+     * 获取游戏大厅地址
+     */
+    Map<String, Object> getGameHomeUrl(Long id);
+
+    /**
      * 获取游戏提供商列表
      */
     List<Map<String, String>> getGameProviderList();

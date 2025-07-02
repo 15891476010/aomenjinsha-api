@@ -1,5 +1,6 @@
 package com.youlai.boot.game.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.constant.SysConfigConstant;
 import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.common.exception.UsdtException;
@@ -7,6 +8,7 @@ import com.youlai.boot.core.security.model.EbUserDetails;
 import com.youlai.boot.core.security.util.SecurityUtils;
 import com.youlai.boot.game.mapper.GameCategoryDataMapper;
 import com.youlai.boot.game.mapper.GameCategoryMapper;
+import com.youlai.boot.game.mapper.GamePlatTypeMapper;
 import com.youlai.boot.game.model.entity.GameCategory;
 import com.youlai.boot.game.model.entity.GameCategoryData;
 import com.youlai.boot.game.model.entity.GamePlatType;
@@ -42,6 +44,8 @@ public class GameServiceImpl implements GameService {
     private GameCategoryMapper gameCategoryMapper;
     @Autowired
     private EbUserMapper ebUserMapper;
+    @Autowired
+    private GamePlatTypeMapper gamePlatTypeMapper;
 
     @Override
     public Map<String, Object> getGameUrl(Long id) {
@@ -64,6 +68,39 @@ public class GameServiceImpl implements GameService {
         if ((int) gameUrl.get("Code") == 0) {
             EbUser byId2 = ebUserMapper.selectById(playerId);
             Map<String, Object> result = msGameApiService.deposit(username, byId.getTag(), byId2.getBalance(), generateOrderNo());
+            if ((int) result.get("Code") != 0) {
+                throw new UsdtException(result.get("Message").toString());
+            } else {
+                byId2.setBalance(new BigDecimal(0));
+                ebUserMapper.updateById(byId2);
+            }
+        }
+        return gameUrl;
+    }
+
+    @Override
+    public Map<String, Object> getGameHomeUrl(Long id) {
+        // 2. 获取当前玩家信息
+        Long playerId = SecurityUtils.getFrontUserId();
+        Optional<EbUserDetails> frontUser = SecurityUtils.getFrontUser();
+        String username = frontUser.map(EbUserDetails::getUsername).orElseThrow(() ->
+                new RuntimeException("用户未登录"));
+
+        GamePlatType gamePlatType = gamePlatTypeMapper.selectById(id);
+        LambdaQueryWrapper<GameCategory> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(GameCategory::getGameType, gamePlatType.getGameType());
+        GameCategory gameCategory = gameCategoryMapper.selectOne(wrapper);
+        Map<String, Object> gameUrl = getGameUrl(username, gamePlatType.getPlatType(), gameCategory.getGameType(), gamePlatType.getGameCode(), 1);
+        // 4. 如果都不匹配，返回空Map
+        if ((int) gameUrl.get("Code") == 34) {
+            Map<String, Object> user = memberRegister(username, gamePlatType.getPlatType());
+            if ((int) user.get("Code") == 0) {
+                gameUrl = getGameUrl(username, gamePlatType.getPlatType(), gameCategory.getGameType(), gamePlatType.getGameCode(), 1);
+            }
+        }
+        if ((int) gameUrl.get("Code") == 0) {
+            EbUser byId2 = ebUserMapper.selectById(playerId);
+            Map<String, Object> result = msGameApiService.deposit(username, gamePlatType.getPlatType(), byId2.getBalance(), generateOrderNo());
             if ((int) result.get("Code") != 0) {
                 throw new UsdtException(result.get("Message").toString());
             } else {

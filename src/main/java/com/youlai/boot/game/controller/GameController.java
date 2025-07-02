@@ -33,6 +33,14 @@ public class GameController {
         return Result.success(gameUrl);
     }
 
+    @Operation(summary = "获取游戏大厅地址")
+    @GetMapping("/getHomeUrl")
+    @AesEncrypt
+    public Result<Map<String, Object>> getHomeUrl(@RequestParam("id") Long id) {
+        Map<String, Object> gameUrl = gameService.getGameHomeUrl(id);
+        return Result.success(gameUrl);
+    }
+
     @Operation(summary = "获取游戏供应商列表")
     @GetMapping("/getProviderList")
     public Result<List<Map<String, String>>> getProviderList() {
