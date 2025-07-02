@@ -133,6 +133,13 @@ public class MinioServiceImpl implements MinioService {
     }
 
     private void ensureBucketExists(CloudVo cloudVo) throws Exception {
+        try {
+            minioClient.listBuckets();
+            logger.info("MinIO 连接成功！");
+        } catch (Exception ex) {
+            logger.error("MinIO 连接失败", ex);
+        }
+
         boolean bucketExists = minioClient.bucketExists(
                 BucketExistsArgs.builder()
                         .bucket(cloudVo.getBucketName())

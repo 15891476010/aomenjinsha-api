@@ -22,4 +22,6 @@ public class GameCategoryDataFrontQuery extends BasePageQuery {
     private String platType;
     @Schema(description = "游戏分类id")
     private Long categoryId;
+    @Schema(description = "手机端还是电脑端")
+    private Integer terminal;
 }

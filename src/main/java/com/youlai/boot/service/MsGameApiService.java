@@ -9,6 +9,7 @@ import com.youlai.boot.utils.MD5Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -173,7 +174,7 @@ public class MsGameApiService {
      * @param transferno 转账订单号，建议时间戳+随机数字，最小16位，最大32位（可选）
      * @return 转账结果
      */
-    public Map<String, Object> deposit(String username, String apiCode, Integer amount, String transferno) {
+    public Map<String, Object> deposit(String username, String apiCode, BigDecimal amount, String transferno) {
         initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("username", username);
@@ -191,7 +192,7 @@ public class MsGameApiService {
      * @param transferno 转账订单号，建议时间戳+随机数字，最小16位，最大32位（可选）
      * @return 转账结果
      */
-    public Map<String, Object> withdrawal(String username, String apiCode, String amount, String transferno) {
+    public Map<String, Object> withdrawal(String username, String apiCode, Integer amount, String transferno) {
         initializeApiSettings();
         Map<String, Object> data = new HashMap<>();
         data.put("username", username);

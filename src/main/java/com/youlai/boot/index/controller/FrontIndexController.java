@@ -29,6 +29,7 @@ import com.youlai.boot.system.service.DictItemService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -113,8 +114,32 @@ public class FrontIndexController {
     @Operation(summary = "前端根据平台类型获取游戏列表")
     @PostMapping("/getGamePlatTypeList")
     @AesEncrypt
-    public Result<Page<GameCategoryDataVO>> getGamePlatTypeList(@RequestBody GameCategoryDataFrontQuery queryParams) {
+    public Result<Page<GameCategoryDataVO>> getGamePlatTypeList(@RequestBody GameCategoryDataFrontQuery queryParams, HttpServletRequest request) {
+        // 获取User-Agent
+        String userAgent = request.getHeader("User-Agent");
+        System.out.println(userAgent);
+        // 判断是否为手机端访问
+        boolean isMobile = isMobileDevice(userAgent);
+
+        // 根据判断结果处理逻辑
+        if (isMobile) {
+            // 手机端的处理逻辑
+            queryParams.setTerminal(2);
+        } else {
+            // 电脑端的处理逻辑
+            queryParams.setTerminal(1);
+        }
         return Result.success(gameCategoryDataService.getGameCategoryDataPageByPlatType(queryParams));
+    }
+
+    private boolean isMobileDevice(String userAgent) {
+        return userAgent != null && (
+                userAgent.contains("Android") ||
+                        userAgent.contains("iPhone") ||
+                        userAgent.contains("Windows Phone") ||
+                        userAgent.contains("Mobile") ||
+                        userAgent.contains("wv")  // WebView 特征
+        );
     }
 
     @Operation(summary = "获取游戏平台列表")

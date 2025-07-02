@@ -54,16 +54,18 @@ public class GameServiceImpl implements GameService {
         GameCategory byId1 = gameCategoryMapper.selectById(byId.getPid());
         Map<String, Object> gameUrl = getGameUrl(username, byId.getTag(), byId1.getGameType(), byId.getGameCode(), 1);
         // 4. 如果都不匹配，返回空Map
-        if ((int) gameUrl.get("code") == 34) {
+        if ((int) gameUrl.get("Code") == 34) {
             Map<String, Object> user = memberRegister(username, byId.getTag());
-            if ((int) user.get("code") == 0) {
+            if ((int) user.get("Code") == 0) {
                 gameUrl = getGameUrl(username, byId.getTag(), byId1.getGameType(), byId.getGameCode(), 1);
             }
         }
-        if ((int) gameUrl.get("code") == 0) {
-            EbUser byId2 = ebUserMapper.selectById(id);
-            Integer amount = byId2.getBalance().intValue();
-            msGameApiService.deposit(username, byId.getTag(), amount, generateOrderNo());
+        if ((int) gameUrl.get("Code") == 0) {
+            EbUser byId2 = ebUserMapper.selectById(playerId);
+            Map<String, Object> result = msGameApiService.deposit(username, byId.getTag(), byId2.getBalance(), generateOrderNo());
+            if ((int) result.get("Code") != 0) {
+                throw new UsdtException(result.get("Message").toString());
+            }
         }
         return gameUrl;
     }
