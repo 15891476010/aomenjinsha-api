@@ -74,7 +74,11 @@ public class GameServiceImpl implements GameService {
                 byId2.setBalance(new BigDecimal(0));
                 ebUserMapper.updateById(byId2);
             }
+        } else {
+            throw new UsdtException(gameUrl.get("Message").toString());
         }
+
+
         return gameUrl;
     }
 
@@ -107,6 +111,8 @@ public class GameServiceImpl implements GameService {
                 byId2.setBalance(new BigDecimal(0));
                 ebUserMapper.updateById(byId2);
             }
+        } else {
+            throw new UsdtException(gameUrl.get("Message").toString());
         }
         return gameUrl;
     }
