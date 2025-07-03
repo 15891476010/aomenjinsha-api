@@ -122,4 +122,12 @@ public class EbUserController  {
         queryParams.setSign(ebUserGameTransferQuery.getSign());
         return ebUserService.transfer(queryParams);
     }
+
+    @Operation(summary = "检测用户是否登录")
+    @PostMapping("/checkLogin")
+    @AesEncrypt
+    public Result<Boolean> checkLogin() {
+        return Result.success(ebUserService.checkLogin());
+    }
+
 }

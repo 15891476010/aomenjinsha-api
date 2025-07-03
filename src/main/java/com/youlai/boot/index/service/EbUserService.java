@@ -84,4 +84,9 @@ public interface EbUserService extends IService<EbUser> {
      * 余额归户
      */
     Map<String, Object> transfer(EbUserGameTransferQuery queryParams);
+
+    /**
+     * 检测用户是否登录
+     */
+    boolean checkLogin();
 }

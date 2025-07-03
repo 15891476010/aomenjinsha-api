@@ -1,5 +1,6 @@
 package com.youlai.boot.index.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.youlai.boot.common.base.CommonPage;
 import com.youlai.boot.common.constant.SysConfigConstant;
@@ -200,7 +201,9 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
 
     @Override
     public AuthenticationToken login(HttpServletRequest request, EbUserLoginRequest loginRequest) {
-        Boolean b = captchaUtil.checkCaptcha(loginRequest.getCaptchaCode(), loginRequest.getCaptchaKey());
+        if (ObjectUtil.isNotEmpty(loginRequest.getCaptchaCode())) {
+            Boolean b = captchaUtil.checkCaptcha(loginRequest.getCaptchaCode(), loginRequest.getCaptchaKey());
+        }
         LambdaQueryWrapper<EbUser> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(EbUser::getUsername, loginRequest.getUsername());
         EbUser one = this.getOne(wrapper);
@@ -210,7 +213,7 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
         if (!passwordEncoder.matches(loginRequest.getPassword(), one.getPassword())) {
             throw new UsdtException("密码错误");
         }
-        if (!one.getRealName().equals(loginRequest.getRealName())) {
+        if (ObjectUtil.isNotEmpty(loginRequest.getRealName()) && !one.getRealName().equals(loginRequest.getRealName())) {
             throw new UsdtException("真实姓名有误");
         }
         EbUserDetails ebUserDetails = new EbUserDetails(
@@ -321,5 +324,11 @@ public class EbUserServiceImpl extends ServiceImpl<EbUserMapper, EbUser> impleme
         map.put("currency", queryParams.getCurrency());
         map.put("ts", queryParams.getTimestamp());
         return map;
+    }
+
+    @Override
+    public boolean checkLogin() {
+        Long frontUserId = SecurityUtils.getFrontUserId();
+        return frontUserId != null;
     }
 }
