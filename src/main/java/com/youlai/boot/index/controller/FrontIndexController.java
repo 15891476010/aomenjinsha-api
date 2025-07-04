@@ -3,6 +3,7 @@ package com.youlai.boot.index.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.common.annotation.AesEncrypt;
+import com.youlai.boot.common.constant.SysGroupConstants;
 import com.youlai.boot.common.result.PageResult;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.game.model.entity.GameCategory;
@@ -26,6 +27,7 @@ import com.youlai.boot.recharge.model.vo.RechargeCategoryVO;
 import com.youlai.boot.recharge.service.RechargeCategoryService;
 import com.youlai.boot.system.model.vo.DictItemOptionVO;
 import com.youlai.boot.system.service.DictItemService;
+import com.youlai.boot.system.service.SysGroupDataService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +58,7 @@ public class FrontIndexController {
     @Autowired
     private GameCategoryDataService gameCategoryDataService;
     private final DictItemService dictItemService;
+    private final SysGroupDataService sysGroupDataService;
 
     @Operation(summary = "全局配置请求")
     @GetMapping("/index")
@@ -155,6 +159,14 @@ public class FrontIndexController {
     public Result<List<DictItemOptionVO>> getDictItems(@Parameter(description = "字典编码") String dictCode) {
         List<DictItemOptionVO> dictItems = dictItemService.getDictItems(dictCode);
         return Result.success(dictItems);
+    }
+
+    @Operation(summary = "获取我的页面跳转列表")
+    @GetMapping("/getMinePagesList")
+    @AesEncrypt
+    public Result<List<HashMap<String, Object>>> getMinePagesList() {
+        List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_INDEX_MINE_PAGES_LIST);
+        return Result.success(listMapByGid);
     }
 
 }
