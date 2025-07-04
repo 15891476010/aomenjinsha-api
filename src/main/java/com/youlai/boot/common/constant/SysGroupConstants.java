@@ -9,4 +9,5 @@ public class SysGroupConstants {
     public static final Integer GROUP_ID_INDEX_AVATAR = 8;// 用户注册随机头像列表
     public static final Integer GROUP_ID_ADMIN_PROVIDER_LIST = 9; // 游戏提供商列表
     public static final Integer GROUP_ID_INDEX_MINE_PAGES_LIST = 10; // 前端-我的页面-跳转栏
+    public static final Integer GROUP_ID_INDEX_MINE_BUTTON_PAGES_LIST = 11; // 前端-我的页面-跳转栏
 }

@@ -168,5 +168,11 @@ public class FrontIndexController {
         List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_INDEX_MINE_PAGES_LIST);
         return Result.success(listMapByGid);
     }
-
+    @Operation(summary = "获取我的页面底部跳转列表")
+    @GetMapping("/getMinePagesBottomList")
+    @AesEncrypt
+    public Result<List<HashMap<String, Object>>> getMinePagesBottomList() {
+        List<HashMap<String, Object>> listMapByGid = sysGroupDataService.getListMapByGid(SysGroupConstants.GROUP_ID_INDEX_MINE_BUTTON_PAGES_LIST);
+        return Result.success(listMapByGid);
+    }
 }
