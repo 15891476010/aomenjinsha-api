@@ -104,15 +104,33 @@ public class GameServiceImpl implements GameService {
         }
         if ((int) gameUrl.get("Code") == 0) {
             EbUser byId2 = ebUserMapper.selectById(playerId);
-            Map<String, Object> result = msGameApiService.deposit(username, gamePlatType.getPlatType(), byId2.getBalance(), generateOrderNo());
+            // 获取当前余额
+            BigDecimal currentBalance = byId2.getBalance();
+
+            // 获取整数部分
+            BigDecimal integerPart = currentBalance.setScale(0, RoundingMode.DOWN);
+
+            // 计算小数部分
+            BigDecimal decimalPart = currentBalance.subtract(integerPart);
+
+            // 调用API存入整数部分
+            Map<String, Object> result = msGameApiService.deposit(
+                    username,
+                    gamePlatType.getPlatType(),
+                    integerPart,
+                    generateOrderNo()
+            );
+
             if ((int) result.get("Code") != 0) {
                 throw new UsdtException(result.get("Message").toString());
             } else {
-                byId2.setBalance(new BigDecimal(0));
+                // 只保留小数部分作为新余额
+                byId2.setBalance(decimalPart);
                 ebUserMapper.updateById(byId2);
             }
         } else {
-            throw new UsdtException(gameUrl.get("Message").toString());
+//            throw new UsdtException(gameUrl.get("Message").toString());
+            return gameUrl;
         }
         return gameUrl;
     }
@@ -190,7 +208,7 @@ public class GameServiceImpl implements GameService {
                 if ((int) withdrawal.get("Code") != 0) {
                     throw new UsdtException(withdrawal.get("Message").toString());
                 }
-                byId2.setBalance(balanceData);
+                byId2.setBalance(byId2.getBalance().add(balanceData));
                 ebUserMapper.updateById(byId2);
             }
         }
