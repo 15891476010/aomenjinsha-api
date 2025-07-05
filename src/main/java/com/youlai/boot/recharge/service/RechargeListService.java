@@ -1,6 +1,7 @@
 package com.youlai.boot.recharge.service;
 
 import com.youlai.boot.recharge.model.entity.RechargeList;
+import com.youlai.boot.recharge.model.form.RechargeFrontForm;
 import com.youlai.boot.recharge.model.form.RechargeListForm;
 import com.youlai.boot.recharge.model.query.RechargeListQuery;
 import com.youlai.boot.recharge.model.vo.RechargeListVO;
@@ -54,5 +55,8 @@ public interface RechargeListService extends IService<RechargeList> {
      * @return 是否删除成功
      */
     boolean deleteRechargeLists(String ids);
-
+    /**
+     * 前端用户新增充值记录
+     */
+    String addRechargeRecord(RechargeFrontForm formData);
 }

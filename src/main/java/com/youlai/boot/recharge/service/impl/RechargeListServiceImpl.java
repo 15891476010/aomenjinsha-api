@@ -4,6 +4,9 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.youlai.boot.common.base.CommonPage;
+import com.youlai.boot.core.security.model.EbUserDetails;
+import com.youlai.boot.core.security.util.SecurityUtils;
+import com.youlai.boot.recharge.model.form.RechargeFrontForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -112,6 +115,13 @@ public class RechargeListServiceImpl extends ServiceImpl<RechargeListMapper, Rec
                 .map(Long::parseLong)
                 .toList();
         return this.removeByIds(idList);
+    }
+
+    @Override
+    public String addRechargeRecord(RechargeFrontForm formData) {
+        // 获取用户id和用户名
+        Long frontUserId = SecurityUtils.getFrontUserId();
+        return "";
     }
 
 }
